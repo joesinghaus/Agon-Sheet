@@ -4,6 +4,7 @@ $domains: ("arts_oration" "blood_valor" "craft_reason" "resolve_spirit");
   display: grid;
   align-items: start;
   gap: 5px;
+  font-size: 12px;
   grid-template: auto 22px repeat(4, auto) / 6.8fr 3.2fr 5fr 5fr;
 }
 
@@ -255,7 +256,7 @@ $domains: ("arts_oration" "blood_valor" "craft_reason" "resolve_spirit");
   align-items: start;
   border-left: $bordercolor;
   display: grid;
-  grid-template: auto / 43px 1fr;
+  grid-template: auto / 47px 1fr;
   margin: 5px 0 0 5px;
   .sheet-pathos-fate {
     border-right: $bordercolor;
@@ -315,7 +316,6 @@ $domains: ("arts_oration" "blood_valor" "craft_reason" "resolve_spirit");
     padding-left: 2px;
   }
   .sheet-bond-uses {
-    font-size: 12px;
     margin-top: 10px;
     .sheet-top {
       font-style: italic;
@@ -355,7 +355,6 @@ $domains: ("arts_oration" "blood_valor" "craft_reason" "resolve_spirit");
     }
   }
   .sheet-auto-expand {
-    font-size: 12px;
     flex: 1 1 auto;
     margin: 3px 0;
     min-height: 14px;
@@ -369,7 +368,6 @@ $domains: ("arts_oration" "blood_valor" "craft_reason" "resolve_spirit");
   .sheet-boon {
     display: flex;
     background-color: #cad8dc;
-    font-size: 12px;
     padding: 4px;
     align-items: center;
     margin: 5px 0 0 3px;
@@ -391,7 +389,6 @@ $domains: ("arts_oration" "blood_valor" "craft_reason" "resolve_spirit");
   padding-left: 3px;
   .sheet-title {
     @include title-text;
-    font-size: 13px;
   }
   .sheet-virtue {
     background: #ddd;

@@ -145,7 +145,9 @@ registerOpened(function () {
   DOMAINS.forEach(domain => {
     const query_entries = [
       `${getTranslation("no")}, `,
-      ...DOMAINS.filter(other => other != domain).map(other => `${getTranslation(other)}, + @{${other}_die}[${getTranslation(other)}]`)
+      ...DOMAINS
+        .filter(other => other != domain)
+        .map(other => `${getTranslation(other)}, + @{${other}_die}[${getTranslation(other)}]`)
     ];
     settings[`${domain}_extra_domain_query`] = query(getTranslation("add_domain_spend_pathos"), query_entries);
     settings[`${domain}_translated`] = getTranslation(domain);
