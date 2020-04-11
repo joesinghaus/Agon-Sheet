@@ -48,10 +48,10 @@ class AttributeSetter {
   }
 }
 const attributeHandler = {
-  get: function(target, name) {
+  get: function (target, name) {
     return target.getAttr(name);
   },
-  set: function(target, name, value) {
+  set: function (target, name, value) {
     target.setAttr(name, value);
   }
 };
@@ -99,6 +99,15 @@ function registerButton(name, callback) {
 const kComma = "&" + "#44" + ";";
 const kBrace = "&" + "#125" + ";";
 const kDBrace = kBrace + kBrace;
+const DOMAINS = [
+  "arts_oration",
+  "blood_valor",
+  "craft_reason",
+  "resolve_spirit",
+];
+function query(question, options) {
+  return `?{${question}|${options.join('|')}}`;
+}
 
 function handleSheetInit() {
   /* Setup and upgrades */
@@ -118,3 +127,28 @@ function handleSheetInit() {
 
 /* DATA */
 const kSheetVersion = "1.0";
+
+registerOpened(function () {
+  const settings = {
+    "advantage_bond_support_translated": getTranslation("advantage_bond_support"),
+    "bonusdice_query": query(getTranslation("bonusdice_query"), [0]),
+    "divine_favor_query": query(getTranslation("spend_divine_favor"), [0]),
+    "divine_favor_translated": getTranslation("divine_favor"),
+    "epithet_query": query(getTranslation("epithet_dice_query"), [
+      `${getTranslation("none")}, `,
+      `${getTranslation("yes")}, + @{epithet_die}[${getTranslation("epithet")}]`,
+      `${getTranslation("both_epithets_apply")}, + 2@{epithet_die}[${getTranslation("epithet")}]`
+    ]),
+    "name_translated": getTranslation("name"),
+    "obstacle_query": query(getTranslation("obstacle"), [0]),
+  };
+  DOMAINS.forEach(domain => {
+    const query_entries = [
+      `${getTranslation("no")}, `,
+      ...DOMAINS.filter(other => other != domain).map(other => `${getTranslation(other)}, + @{${other}_die}[${getTranslation(other)}]`)
+    ];
+    settings[`${domain}_extra_domain_query`] = query(getTranslation("add_domain_spend_pathos"), query_entries);
+    settings[`${domain}_translated`] = getTranslation(domain);
+  });
+  setAttrs(settings);
+});
