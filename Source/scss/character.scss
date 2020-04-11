@@ -3,7 +3,7 @@
   align-items: start;
   gap: 5px;
   font-size: 12px;
-  grid-template: auto 23px repeat(4, auto) / 6.5fr 3.5fr 5.2fr 4.8fr;
+  grid-template: 50px 23px repeat(4, auto) / 6.5fr 3.5fr 5.2fr 4.8fr;
 }
 
 .sheet-logo {
@@ -16,6 +16,9 @@
   @include title-text;
   background-color: $lightblue;
   padding: 3px;
+  input[type=text], .sheet-auto-expand {
+    @include title-text;
+  }
 }
 
 @mixin leftshift {
@@ -45,17 +48,17 @@
 
 .sheet-title-vertical {
   display: grid;
-  grid-template-columns: auto 1fr;
-  align-content: start;
+  grid-template-columns: 14px 1fr;
   column-gap: 3px;
   > .sheet-title {
     @include title-text;
     font-size: 14px;
     line-height: 1;
-    writing-mode: vertical-rl;
-    text-orientation: sideways;
     text-align: center;
-    transform: rotate(180deg);
+    transform: rotate(-90deg);
+    height: 14px;
+    align-self: center;
+    justify-self: center;
   }
   > .sheet-content {
     border-left: $bordercolor;
@@ -64,6 +67,10 @@
 
 .sheet-glory {
   grid-column: span 2;
+  align-self: stretch;
+  > .sheet-title {
+    width: 55px;
+  }
   .sheet-content {
     display: grid;
     padding-left: 5px;
@@ -76,20 +83,26 @@
   }
 }
 
-.sheet-namebox .sheet-content {
-  display: grid;
-  gap: 5px;
-  padding-left: 5px;
-  grid-template: auto/ 22% 32% 1fr;
-  font-size: 10px;
-  label {
-    line-height: 1;
-    align-items: center;
-    margin: 0;
-    padding: 0;
+.sheet-namebox {
+  align-self: stretch;
+  > .sheet-title {
+    width: 50px;
   }
-  input + span {
-    margin-right: 3px;
+  .sheet-content {
+    display: grid;
+    gap: 5px;
+    padding-left: 5px;
+    grid-template: auto/ 22% 32% 1fr;
+    font-size: 10px;
+    label {
+      line-height: 1;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+    }
+    input + span {
+      margin-right: 3px;
+    }
   }
 }
 
@@ -104,28 +117,33 @@
     min-height: 39px;
     grid-template: auto / 34% 1fr;
     .sheet-title {
-      @include bluebox;
-      padding: 3px 7px;
-      display: flex;
-      align-items: center;
-      font-size: 12.5px;
+      display: grid;
+      background-color: $lightblue;
+      align-content: center;
+      .sheet-auto-expand {
+        @include bluebox;
+        padding: 3px 5px;
+        font-size: 12.5px;
+        text-align: center;
+        min-height: 14px;
+      }
     }
     .sheet-content {
       display: flex;
       align-items: center;
       border: 2px solid black;
+      input[type=text],
+      .sheet-auto-expand {
+        padding: 2px 4px;
+      }
+      .sheet-auto-expand {
+        flex: 1 1 auto;
+        width: 0;
+        font-size: 13px;
+        line-height: 1.2;
+        min-height: 18px;
+      }
     }
-  }
-  .sheet-auto-expand {
-    flex: 1 1 auto;
-    width: 0;
-    font-size: 13px;
-    line-height: 1.2;
-    min-height: 18px;
-  }
-  input[type="text"],
-  .sheet-auto-expand {
-    padding: 2px 4px;
   }
   select {
     width: 45px;
@@ -137,11 +155,11 @@
 }
 
 @each $domain in $domains {
-  button[type="roll"].sheet-domain-button-#{$domain} {
+  button[type=roll].sheet-domain-button-#{$domain} {
     background-image: url("#{$repo}/#{$domain}.png");
   }
 }
-.sheet-domains {
+.charsheet .sheet-domains {
   display: grid;
   border-left: $bordercolor;
   line-height: 1;
@@ -153,13 +171,15 @@
   margin-top: 5px;
   .sheet-title {
     @include title-text;
+    height: 12px; 
     padding-left: 2px;
   }
-  button[type="roll"].btn {
+  button[type=roll].btn {
     @include bluebox;
     display: block;
     text-align: center;
     font-size: 12px;
+    white-space: normal;
     margin: 0;
     padding: 3px 3px 3px 20px;
     line-height: 1.2;
@@ -181,7 +201,7 @@
   .sheet-domain {
     display: flex;
     height: 39px;
-    &:last-child button[type="roll"] {
+    &:last-child button[type=roll] {
       background-position: 8px center;
     }
   }
@@ -191,6 +211,9 @@
   @include leftshift;
   grid-row: 4;
   grid-column: span 2;
+  > .sheet-title {
+    width: 137px;
+  }
   .sheet-content {
     display: grid;
     gap: 5px;
@@ -201,7 +224,7 @@
 .sheet-favorbox {
   @include bluebox;
   @include right-checkboxes;
-  font-size: 12px;
+  padding: 5px 3px;
   border-right: $bordercolor;
   .sheet-label {
     font-weight: bold;
@@ -211,20 +234,29 @@
 .sheet-style-notes {
   @include leftshift;
   grid-row: 5;
+  min-height: 135px;
   grid-column: span 2;
   .sheet-auto-expand {
     min-height: 90px;
+  }
+  > .sheet-title {
+    width: 135px;
   }
 }
 
 .sheet-recite {
   @include leftshift;
+  min-height: 155px;
   grid-row: 6;
   grid-column: span 3;
+  > .sheet-title {
+    width: 158px;
+  }
   .sheet-content {
+    gap: 3px 5px;
     column-gap: 5px;
+    row-gap: 3px;
     display: grid;
-    font-size: 11px;
     align-content: start;
     grid-template: auto / repeat(4, 1fr);
     padding-left: 5px;
@@ -235,20 +267,22 @@
     > :last-child {
       grid-column: span 4;
     }
-    li {
-      font-size: 10px;
-      line-height: 1.2;
-      font-style: italic;
-      margin-bottom: 3px;
-    }
     .sheet-title {
       @include title-text;
       font-weight: bold;
     }
+    > .sheet-auto-expand {
+      font-size: 13px;
+      line-height: 15px;
+      min-height: 15px;
+    }
   }
-  strong {
-    @include title-text;
-    font-weight: bold;
+  .sheet-recite-box {
+    .sheet-auto-expand {
+      font-size: 10.5px;
+      line-height: 1.5;
+      font-style: italic;
+    }
   }
 }
 
@@ -267,7 +301,7 @@
     align-items: center;
     flex-flow: column;
     padding-bottom: 8px;
-    input[type="checkbox"] {
+    input[type=checkbox] {
       &.sheet-circlebox,
       &.sheet-squarebox {
         margin-right: 0;
@@ -297,20 +331,20 @@
     .sheet-title {
       @include title-text;
       padding-left: 2px;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
     .repitem {
       display: grid;
-      padding: 0 2px;
+      padding: 0 3px;
       border-bottom: 2px solid $darkgrey;
       grid-template: auto / 30px 1fr;
       margin-bottom: 4px;
     }
-    input[type="number"] {
+    input[type=number] {
       font-size: 12px;
       width: 100%;
     }
-    input[type="text"] {
+    .repitem input[type=text] {
       font-size: 12px;
       width: 100%;
     }
@@ -329,6 +363,7 @@
     .sheet-bond-use {
       @include title-text;
       letter-spacing: 0.5px;
+      min-height: 14px;
       margin-top: 5px;
       padding: 3px;
       background: $lighter;
@@ -343,7 +378,7 @@
   .sheet-title {
     @include title-text;
     padding-left: 2px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
   .repitem {
     display: flex;
@@ -400,8 +435,9 @@
     gap: 5px;
     padding: 3px;
   }
-  input[type="number"].sheet-value {
+  input[type=number].sheet-value {
     width: 100%;
+    font-weight: bold;
     font-size: 13px;
   }
 }

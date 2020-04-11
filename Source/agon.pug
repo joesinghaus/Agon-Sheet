@@ -5,20 +5,18 @@ include pug/definitions.pug
 //- Hidden inputs for sheet default values
 div
   +hidden-input("advantage_bond_support_translated")(value=locals.translation["advantage_bond_support"])
-  +hidden-input("bonusdice_query")(value="?{Other dice (Advantage, Bond Dice, or Support), e.g. 1d8 + 1d8 + 1d6|0}")
-  +hidden-input("divine_favor_query")(value="?{Spend Divine Favor|0}")
-  +hidden-input("divine_favor_translated")(value=locals.translation["divine_favor"])
-  +hidden-input("epithet_and_name_query")(value="?{Epithet die|None, |@{epithet}, + @{epithet_die}[Epithet]}")
-  +hidden-input("name_translated")(value=locals.translation["name"])
-  +hidden-input("obstacle_query")(value="?{Obstacle|0}")
   +hidden-input("arts_oration_extra_domain_query")(value="?{Add another Domain (spend Pathos)|No, |Blood & Valor, + @{blood_valor_die}[Blood & Valor]|Craft & Reason, + @{craft_reason_die}[Craft & Reason]|Resolve & Spirit, + @{resolve_spirit_die}[Resolve & Spirit]}")
   +hidden-input("arts_oration_translated")(value=locals.translation["arts_oration"])
   +hidden-input("blood_valor_extra_domain_query")(value="?{Add another Domain (spend Pathos)|No, |Arts & Oration, + @{arts_oration_die}[Arts & Oration]|Craft & Reason, + @{craft_reason_die}[Craft & Reason]|Resolve & Spirit, + @{resolve_spirit_die}[Resolve & Spirit]}")
   +hidden-input("blood_valor_translated")(value=locals.translation["blood_valor"])
+  +hidden-input("bonusdice_query")(value="?{Other dice (Advantage, Bond Dice, or Support), e.g. 1d8 + 1d8 + 1d6|0}")
   +hidden-input("craft_reason_extra_domain_query")(value="?{Add another Domain (spend Pathos)|No, |Arts & Oration, + @{arts_oration_die}[Arts & Oration]|Blood & Valor, + @{blood_valor_die}[Blood & Valor]|Resolve & Spirit, + @{resolve_spirit_die}[Resolve & Spirit]}")
   +hidden-input("craft_reason_translated")(value=locals.translation["craft_reason"])
+  +hidden-input("divine_favor_query")(value="?{Spend Divine Favor|0}")
+  +hidden-input("epithet_and_name_query")(value="?{Epithet die|None,roll=[[{@{name_die}[@{name_label}]|@{epithet},epithet=@{epithet}&#125;&#125; {{roll=[[{@{name_die}[@{name_label}] + @{epithet_die}[@{epithet_label}]}")
   +hidden-input("resolve_spirit_extra_domain_query")(value="?{Add another Domain (spend Pathos)|No, |Arts & Oration, + @{arts_oration_die}[Arts & Oration]|Blood & Valor, + @{blood_valor_die}[Blood & Valor]|Craft & Reason, + @{craft_reason_die}[Craft & Reason]}")
   +hidden-input("resolve_spirit_translated")(value=locals.translation["resolve_spirit"])
+  +hidden-input("target_query")(value="?{Target Number|0}")
 
 //- Actual sheet
 .container
