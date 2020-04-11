@@ -1,0 +1,133 @@
+mixin title-vertical(title)
+  .title-vertical&attributes(attributes)
+    .title(data-i18n=title)
+    .content
+      block
+
+.logo
+
+//- Glory
++title-vertical("glory").glory
+  each j in range(0,7)
+    .box
+      +hidden-checkbox(`glory_${j}`)(value="0", checked).fakeradio
+      each k in range(1,5)
+        +checkbox(`glory_${j}`)(value=k).squarebox.fakeradio
+        if (k < 5)
+          .floatingbar
+
+//- Name
++title-vertical("name").namebox
+  each entry in NAME_SECTION
+    label
+      +checkbox(`namebox_${entry[0]}`).squarebox
+      span=entry[1]
+
+
+//- Key information
+mixin infobox(name)
+  .infobox
+    .title(data-i18n=name)
+    .content&attributes(attributes)
+      block
+.info
+  +infobox("epithet").epithet
+    +autoexpand("epithet")
+    +die-select("epithet_dice", ["d6", "d8", "d10"])
+  +infobox("name").character-name
+    +text-input("character_name")
+    +die-select("name_dice", ["d6", "d8", "d10", "d12"])
+  +infobox("lineage_pronouns").lineage-pronouns
+    +text-input("lineage_pronouns", "scion_of")
+  +infobox("honored_god").honored-god
+    +autoexpand("honored_god")
+    each i in range(1,2)
+      label
+        +checkbox(`god_strength_${i}`).diamondbox
+
+//- Domains
+.domains
+  .title(data-i18n="domains")
+  each domainName in DOMAINS
+    .domain
+      button(type="roll", name=`roll_${domainName}`, value="", data-i18n=`${domainName}_br`, class=`domain-button-${domainName}`)
+      +die-select(`${domainName}_dice`, ["d6", "d8", "d10"])
+
+//- Divine Favor
++title-vertical("divine_favor").favors
+  each favor in DIVINE_FAVOR
+    .favorbox
+      .label(data-i18n=favor[0])
+      div(data-i18n=favor[1])
+      each i in range(1,2)
+        label
+          +checkbox(`favor_${favor[0]}_${i}`).diamondbox
+
+//- Style & Notes
++title-vertical("style_notes").style-notes
+  +autoexpand("style_notes").notes
+
+//- "Recite your deeds"
++title-vertical("recite_your_deeds").recite
+  div(data-i18n="recite_top")
+  each domainName in DOMAINS
+    .recite-box
+      .title(data-i18n=domainName)
+      ul(data-i18n=`recite_${domainName}`)
+  div(data-i18n="recite_bottom")
+
+.pathos-bonds
+  .pathos-fate
+    .title(data-i18n="pathos")
+    +hidden-checkbox("pathos")(value="0", checked).fakeradio
+    each i in range(1, NUM_PATHOS_BOXES)
+      +checkbox("pathos")(value=i).circlebox.fakeradio
+      .floating-vert-bar
+    .agony(data-i18n="agony")
+    .floating-vert-bar
+    +checkbox("pathos")(value=NUM_PATHOS_BOXES+1).circlebox.fakeradio
+    .floating-vert-bar
+    .fate(data-i18n="fate")
+    .floating-vert-bar
+    +hidden-checkbox("fate")(value="0", checked).fakeradio2
+    each i in range(1, NUM_FATE_BOXES)
+      - cls = (i === 1 || i === 4 || i === 8) ? "squarebox fakeradio2 dot" : "squarebox fakeradio2";
+      +checkbox("fate")(value=i, class=cls)
+      if (i < NUM_FATE_BOXES)
+        .floating-vert-bar
+  .bonds
+    .title(data-i18n="bonds")
+    fieldset.repeating_bonds
+      +number-input("bond_number")(value="0").bond-number
+      +text-input("bond_name").bond-name
+    .bond-uses
+      .top(data-i18n="bond_use_top")
+      each i in range(1,3)
+        .bond-use(data-i18n=`bond_use_${i}`)
+
+//- Great deeds and boons
+mixin boon(name, numboxes)
+  .boon
+    for i in range(1, numboxes)
+      +checkbox(`${name}_check_${i}`).squarebox
+    div(data-i18n=name)
+.great-deeds-boons
+  .great-deeds
+    .title(data-i18n="great_deeds_and_trophies")
+    fieldset.repeating_deeds
+      +checkbox("deed_check").squarebox
+      +autoexpand("deed_name")(data-i18n-placeholder="great_deed").deed-name
+  .boons
+    .title(data-i18n="boons")
+    each boon in BOONS[0]
+      +boon(boon.name, boon.numboxes || 1)
+    .divider
+    each boon in BOONS[1]
+      +boon(boon.name, boon.numboxes || 1)
+
+.virtues
+  .title(data-i18n="virtues")
+  each virtue in ["acumen", "courage", "grace", "passion"]
+    .virtue
+      +number-input(virtue)(value="0").value
+      .title(data-i18n=virtue)

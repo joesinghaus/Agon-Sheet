@@ -1,0 +1,19 @@
+$lighter: #ddd;
+$mediumgrey: #bbb;
+$darkgrey: #999;
+$lightblack: #555;
+$fontblack: #333;
+$lightblue: #cad8dc;
+$darkred: #be131a;
+
+$bordercolor: 2px solid black;
+
+@mixin title-text {
+  text-transform: uppercase;
+  font-size: 12px;
+  font-family: 'Girassol', cursive;
+}
+
+
+$sheet-width-character: 860px;
+$repo: "https://raw.githubusercontent.com/joesinghaus/Agon-sheet/master/Assets";

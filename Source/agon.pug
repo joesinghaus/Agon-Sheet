@@ -1,0 +1,21 @@
+include pug/definitions.pug
+//- Image preloading
+.preload
+
+//- Hidden inputs
+div
+
+//- Actual sheet
+.container
+  //- Version info & settings
+  .sheet-type-character
+    include pug/character.pug
+
+//- Force a line break for clean diffs
+|
+|
+include pug/rolltemplate.pug
+|
+|
+script(type='text/worker')
+  != locals.workers

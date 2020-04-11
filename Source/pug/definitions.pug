@@ -1,0 +1,96 @@
+-
+  // Javascript definitions needed later.
+  function range (start, end) {
+    if (start < 0) throw TypeError("Not supported.");
+    return [...Array(end+1).keys()].slice(start);
+  }
+
+  const DOMAINS = [
+    "arts_oration",
+    "blood_valor",
+    "craft_reason",
+    "resolve_spirit",
+  ];
+  const DIVINE_FAVOR = [
+    ["authority", "zeus"],
+    ["beauty", "aphrodite"],
+    ["conviction", "demeter"],
+    ["cunning", "hera"],
+    ["daring", "hermes"],
+    ["ferocity", "ares"],
+    ["fortitude", "poseidon"],
+    ["ingenuity", "hephaistos"],
+    ["insight", "hekate"],
+    ["knowledge", "apollo"],
+    ["precision", "artemis"],
+    ["wisdom", "athena"],
+  ];
+  NAME_SECTION = [
+    ["40", "40"],
+    ["80", "80 (D8)"],
+    ["120", "120 (D10)"],
+    ["160", "160"],
+    ["200", "200"],
+    ["240", "240 (D12)"],
+  ];
+  BOONS = [
+    [
+      {"name": "boons_1"},
+      {"name": "boons_2", "numboxes": 2},
+      {"name": "boons_3"},
+      {"name": "boons_4"},
+    ], [
+      {"name": "boons_5"},
+      {"name": "boons_6"},
+      {"name": "boons_7"},
+    ],
+  ];
+  NUM_PATHOS_BOXES = 5;
+  NUM_FATE_BOXES = 12;
+
+
+mixin checkbox(name)
+  input(
+    type="checkbox",
+    class=attributes.class,
+    name=`attr_${name}`,
+    value=attributes.value||"1",
+    checked=attributes.checked)
+  span
+
+mixin radio(name)
+  input(
+    type="radio",
+    class=["radiobox", attributes.class],
+    name=`attr_${name}`,
+    value=attributes.value,
+    checked=attributes.checked)
+  span
+
+mixin text-input(name, placeholder)
+  input(type="text", spellcheck="false", name=`attr_${name}`, data-i18n-placeholder=placeholder)&attributes(attributes)
+
+
+mixin number-input(name)
+  input(type="number", name=`attr_${name}`)&attributes(attributes)
+
+mixin textarea(name)
+  textarea(spellcheck="false", name=`attr_${name}`)&attributes(attributes)
+    block
+
+mixin hidden-checkbox(name)
+  - classes = attributes.class;
+  - delete attributes.class;
+  input(type="checkbox", name=`attr_${name}`, class=["hidden", classes])&attributes(attributes)
+
+mixin autoexpand(name)
+  div(class=["auto-expand", attributes.class])
+    span(name=`attr_${name}`)
+      block
+    +textarea(name)(data-i18n-placeholder!=attributes["data-i18n-placeholder"])
+      block
+
+mixin die-select(name, options)
+  select(name=`attr_${name}`)
+    each option in options
+      option(value=options)=option

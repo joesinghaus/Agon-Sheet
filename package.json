@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "jstransformer": "^1.0.0",
+    "jstransformer-uglify-es": "^0.2.1",
+    "node-sass": "^4.12.0",
+    "pug": "^2.0.4"
+  },
+  "license": "MIT",
+  "repository": "Agon-Sheet"
+}

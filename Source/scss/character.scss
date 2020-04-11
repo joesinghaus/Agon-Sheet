@@ -1,0 +1,401 @@
+$domains: ("arts_oration" "blood_valor" "craft_reason" "resolve_spirit");
+
+.sheet-type-character {
+  display: grid;
+  align-items: start;
+  gap: 5px;
+  grid-template: auto 22px repeat(4, auto) / 6.8fr 3.2fr 5fr 5fr;
+}
+
+.sheet-logo {
+  grid-column: 1;
+  grid-row: span 2;
+  align-self: stretch;
+}
+
+@mixin bluebox {
+  @include title-text;
+  background-color: $lightblue;
+  padding: 3px;
+}
+
+@mixin leftshift {
+  position: relative;
+  left: -19px;
+  width: calc(100% + 19px);
+}
+
+@mixin right-checkboxes {
+  position: relative;
+  label {
+    position: absolute;
+    z-index: 5;
+    width: auto;
+    height: 12px;
+    right: -6px;
+    margin: 0;
+    padding: 0;
+    &:first-of-type {
+      top: calc(25% - 6px);
+    }
+    &:last-of-type {
+      bottom: calc(25% - 6px);
+    }
+  }
+}
+
+.sheet-title-vertical {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-content: start;
+  column-gap: 3px;
+  > .sheet-title {
+    @include title-text;
+    font-size: 16px;
+    line-height: 1;
+    writing-mode: vertical-rl;
+    text-orientation: sideways;
+    text-align: center;
+    transform: rotate(180deg);
+  }
+  > .sheet-content {
+    border-left: $bordercolor;
+  }
+}
+
+.sheet-glory {
+  grid-column: span 2;
+  .sheet-content {
+    display: grid;
+    padding-left: 5px;
+    gap: 5px;
+    grid-template: auto / repeat(4, 1fr);
+    .sheet-box {
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
+.sheet-namebox .sheet-content {
+  display: grid;
+  gap: 5px;
+  padding-left: 5px;
+  grid-template: auto/ 22% 32% 1fr;
+  font-size: 10px;
+  label {
+    line-height: 1;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+  }
+  input + span {
+    margin-right: 3px;
+  }
+}
+
+.sheet-info {
+  display: grid;
+  align-content: start;
+  grid-row: 3;
+  grid-column: 1;
+  grid-gap: 10px;
+  .sheet-infobox {
+    display: grid;
+    min-height: 39px;
+    grid-template: auto / 32% 1fr;
+    .sheet-title {
+      @include bluebox;
+      padding: 3px 7px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+    .sheet-content {
+      display: flex;
+      align-items: center;
+      border: 2px solid black;
+    }
+  }
+  .sheet-auto-expand {
+    flex: 1 0 auto;
+    font-size: 13px;
+    line-height: 1.2;
+    min-height: 18px;
+  }
+  input[type="text"],
+  .sheet-auto-expand {
+    padding: 2px 4px;
+  }
+  select {
+    width: 45px;
+  }
+}
+
+.sheet-honored-god {
+  @include right-checkboxes;
+}
+
+@each $domain in $domains {
+  button[type="roll"].sheet-domain-button-#{$domain} {
+    background-image: url("#{$repo}/#{$domain}.png");
+  }
+}
+.sheet-domains {
+  display: grid;
+  border-left: $bordercolor;
+  line-height: 1;
+  align-content: start;
+  align-self: start;
+  grid-row: 2 / 4;
+  grid-column: 2;
+  grid-gap: 10px;
+  margin-top: 5px;
+  .sheet-title {
+    @include title-text;
+    padding-left: 2px;
+  }
+  button[type="roll"].btn {
+    @include bluebox;
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    margin: 0;
+    padding: 3px 3px 3px 20px;
+    line-height: 1.2;
+    width: 0;
+    flex: 1 1 0;
+    background-size: auto 75%;
+    background-position: 3px center;
+    background-repeat: no-repeat;
+    &.btn::before {
+      content: "";
+    }
+  }
+  select {
+    width: 45px;
+    border-width: 2px 2px 2px 0;
+    height: 100%;
+    border-color: black;
+  }
+  .sheet-domain {
+    display: flex;
+    height: 39px;
+    &:last-child button[type="roll"] {
+      background-position: 8px center;
+    }
+  }
+}
+
+.sheet-favors {
+  @include leftshift;
+  grid-row: 4;
+  grid-column: span 2;
+  .sheet-content {
+    display: grid;
+    gap: 5px;
+    grid-template: auto / repeat(4, 1fr);
+  }
+}
+
+.sheet-favorbox {
+  @include bluebox;
+  @include right-checkboxes;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  border-right: $bordercolor;
+  .sheet-label {
+    font-weight: bold;
+  }
+}
+
+.sheet-style-notes {
+  @include leftshift;
+  grid-row: 5;
+  grid-column: span 2;
+  .sheet-auto-expand {
+    min-height: 90px;
+  }
+}
+
+.sheet-recite {
+  @include leftshift;
+  grid-row: 6;
+  grid-column: span 2;
+  .sheet-content {
+    column-gap: 5px;
+    display: grid;
+    font-size: 11px;
+    grid-template: auto / repeat(4, 1fr);
+    padding-left: 5px;
+    > :first-child,
+    > :last-child {
+      grid-column: span 4;
+    }
+    li {
+      font-size: 10px;
+      line-height: 1.2;
+      font-style: italic;
+      margin-bottom: 3px;
+    }
+    .sheet-title {
+      @include title-text;
+      font-weight: bold;
+    }
+  }
+  strong {
+    @include title-text;
+    font-weight: bold;
+  }
+}
+
+.sheet-pathos-bonds {
+  grid-row: span 4;
+  align-self: stretch;
+  align-items: start;
+  border-left: $bordercolor;
+  display: grid;
+  grid-template: auto / 43px 1fr;
+  margin: 5px 0 0 5px;
+  .sheet-pathos-fate {
+    border-right: $bordercolor;
+    display: flex;
+    align-items: center;
+    flex-flow: column;
+    input[type="checkbox"] {
+      &.sheet-circlebox,
+      &.sheet-squarebox {
+        margin-right: 0;
+        margin-bottom: -12px;
+      }
+    }
+    .sheet-title {
+      @include title-text;
+    }
+  }
+  .sheet-agony {
+    @include title-text;
+    width: 100%;
+    background: $mediumgrey;
+    text-align: center;
+    color: black;
+  }
+  .sheet-fate {
+    @include title-text;
+    width: 100%;
+    text-align: center;
+    background: black;
+    color: white;
+  }
+  .sheet-bonds {
+    .sheet-title {
+      @include title-text;
+      padding-left: 2px;
+      margin-bottom: 3px;
+    }
+    .repitem {
+      display: grid;
+      padding: 0 2px;
+      border-bottom: 2px solid $darkgrey;
+      grid-template: auto / 30px 1fr;
+      margin-bottom: 4px;
+    }
+    input[type="number"] {
+      font-size: 12px;
+      width: 100%;
+    }
+    input[type="text"] {
+      font-size: 12px;
+      width: 100%;
+    }
+  }
+  .repcontrol {
+    padding-left: 2px;
+  }
+  .sheet-bond-uses {
+    font-size: 12px;
+    margin-top: 10px;
+    .sheet-top {
+      font-style: italic;
+      text-align: center;
+      line-height: 1.1;
+      padding: 0 3px;
+    }
+    .sheet-bond-use {
+      @include title-text;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      margin-top: 5px;
+      padding: 3px;
+      background: $lighter;
+    }
+  }
+}
+
+.sheet-great-deeds-boons {
+  grid-row: span 5;
+  border-left: $bordercolor;
+  .sheet-title {
+    @include title-text;
+    padding-left: 2px;
+    margin-bottom: 5px;
+  }
+  .repitem {
+    display: flex;
+    padding: 0 2px;
+    border-bottom: 2px solid $darkgrey;
+    margin-bottom: 3px;
+    .sheet-squarebox {
+      margin: 3px -12px 0 3px;
+      & + span {
+        margin: 3px 5px 0 0;
+      }
+    }
+  }
+  .sheet-auto-expand {
+    font-size: 12px;
+    flex: 1 1 auto;
+    margin: 3px 0;
+    min-height: 14px;
+  }
+  .repcontrol {
+    padding-left: 2px;
+  }
+  .sheet-boons {
+    margin-top: 10px;
+  }
+  .sheet-boon {
+    display: flex;
+    background-color: #cad8dc;
+    font-size: 12px;
+    padding: 4px;
+    align-items: center;
+    margin: 5px 0 0 3px;
+    .sheet-squarebox + span {
+      margin-right: 3px;
+    }
+  }
+}
+
+.sheet-virtues {
+  border-left: $bordercolor;
+  margin-left: 5px;
+  width: 100px;
+  padding-left: 3px;
+  .sheet-title {
+    @include title-text;
+    font-size: 13px;
+  }
+  .sheet-virtue {
+    background: #ddd;
+    display: grid;
+    grid-template: auto / 35px 1fr;
+    margin-top: 5px;
+    gap: 5px;
+    padding: 3px;
+  }
+  input[type=number].sheet-value {
+    width: 100%;
+    font-size: 13px;
+  }
+}
