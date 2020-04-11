@@ -34,11 +34,15 @@ mixin infobox(name)
   +infobox("epithet").epithet
     +autoexpand("epithet")
     +die-select("epithet_die", ["d6", "d8", "d10"])
+  +hidden-input("boons_4_check_1").hider
+  +infobox("epithet").epithet
+    +autoexpand("epithet_2")
+    +die-select("epithet_2_die", ["d6", "d8", "d10"])
   +infobox("name").character-name
     +text-input("character_name")
     +die-select("name_die", ["d6", "d8", "d10", "d12"])
   +infobox("lineage_pronouns").lineage-pronouns
-    +text-input("lineage_pronouns", "scion_of")
+    +autoexpand("lineage_pronouns", "scion_of")
   +infobox("honored_god").honored-god
     +autoexpand("honored_god")
     each i in range(1,2)

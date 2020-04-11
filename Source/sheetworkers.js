@@ -43,7 +43,7 @@ class AttributeSetter {
         if (this._targetAttrs[key] != values[key])
           finalAttrs[key] = this._targetAttrs[key];
       }
-      setAtts(finalAttrs, { silent: true }, callback);
+      setAttrs(finalAttrs, { silent: true }, callback);
     });
   }
 }
@@ -53,6 +53,7 @@ const attributeHandler = {
   },
   set: function (target, name, value) {
     target.setAttr(name, value);
+    return true;
   }
 };
 function getSetAttrs(attrs, callback, finalCallback) {
@@ -96,6 +97,9 @@ function registerButton(name, callback) {
   on(`clicked:${name}`, throttledFunction);
 }
 
+/* DATA */
+const kSheetVersion = "1.0";
+const kExtraEpithetField = "boons_4_check_1";
 const kComma = "&" + "#44" + ";";
 const kBrace = "&" + "#125" + ";";
 const kDBrace = kBrace + kBrace;
@@ -106,7 +110,7 @@ const DOMAINS = [
   "resolve_spirit",
 ];
 function query(question, options) {
-  return `?{${question}|${options.join('|')}}`;
+  return `?{${getTranslation(question)}|${options.join('|')}}`;
 }
 
 function handleSheetInit() {
@@ -119,38 +123,52 @@ function handleSheetInit() {
     };
     const upgradeSheet = (version) => {
       console.log(`Found version ${version}.`);
-      if (version !== sheetVersion) console.log("Performing sheet upgrade.");
-      mySetAttrs(addVersion({}, sheetVersion));
+      if (version !== kSheetVersion) console.log("Performing sheet upgrade.");
+      mySetAttrs(addVersion({}, kSheetVersion));
     };
   });
 }
 
-/* DATA */
-const kSheetVersion = "1.0";
+function calculateEpithetQuery(attrs) {
+  const epithet_options = [
+    `${getTranslation("none")}, `,
+    `@{epithet}, + @{epithet_die}[${getTranslation("epithet")}]`,
+  ];
+  console.log(attrs[kExtraEpithetField]);
+  if (attrs[kExtraEpithetField] === "1") {
+    epithet_options.push(...[
+      `@{epithet_2}, + @{epithet_2_die}[${getTranslation("epithet")}]`,
+      `@{epithet} ${getTranslation("and")} @{epithet_2}, + (@{epithet_die} + @{epithet_2_die})[${getTranslation("epithet")}]`,
+    ])
+  }
+  return query("epithet_dice_query", epithet_options);
+}
+
+register(kExtraEpithetField, function () {
+  getSetAttrs([kExtraEpithetField], function(attrs) {
+    calculateEpithetQuery(attrs);
+  })
+});
 
 registerOpened(function () {
-  const settings = {
-    "advantage_bond_support_translated": getTranslation("advantage_bond_support"),
-    "bonusdice_query": query(getTranslation("bonusdice_query"), [0]),
-    "divine_favor_query": query(getTranslation("spend_divine_favor"), [0]),
-    "divine_favor_translated": getTranslation("divine_favor"),
-    "epithet_query": query(getTranslation("epithet_dice_query"), [
-      `${getTranslation("none")}, `,
-      `${getTranslation("yes")}, + @{epithet_die}[${getTranslation("epithet")}]`,
-      `${getTranslation("both_epithets_apply")}, + 2@{epithet_die}[${getTranslation("epithet")}]`
-    ]),
-    "name_translated": getTranslation("name"),
-    "obstacle_query": query(getTranslation("obstacle"), [0]),
-  };
-  DOMAINS.forEach(domain => {
-    const query_entries = [
-      `${getTranslation("no")}, `,
-      ...DOMAINS
-        .filter(other => other != domain)
-        .map(other => `${getTranslation(other)}, + @{${other}_die}[${getTranslation(other)}]`)
-    ];
-    settings[`${domain}_extra_domain_query`] = query(getTranslation("add_domain_spend_pathos"), query_entries);
-    settings[`${domain}_translated`] = getTranslation(domain);
+  getSetAttrs([kExtraEpithetField], function(attrs) {
+    attrs["advantage_bond_support_translated"] = getTranslation("advantage_bond_support");
+    attrs["bonusdice_query"] = query("bonusdice_query", [0]);
+    attrs["divine_favor_query"] = query("spend_divine_favor", [0]);
+    attrs["divine_favor_translated"] =  getTranslation("divine_favor");
+    attrs["name_translated"] = getTranslation("name");
+    attrs["obstacle_query"] = query("obstacle", [0]);
+    attrs["epithet_query"] = calculateEpithetQuery(attrs);
+
+    DOMAINS.forEach(domain => {
+      const query_entries = [
+        `${getTranslation("no")}, `,
+        ...DOMAINS
+          .filter(other => other != domain)
+          .map(other => `${getTranslation(other)}, + @{${other}_die}[${getTranslation(other)}]`)
+      ];
+      attrs[`${domain}_extra_domain_query`] = query("add_domain_spend_pathos", query_entries);
+      attrs[`${domain}_translated`] = getTranslation(domain);
+    });
   });
-  setAttrs(settings);
 });

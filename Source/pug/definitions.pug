@@ -82,6 +82,9 @@ mixin hidden-checkbox(name)
   - classes = attributes.class;
   - delete attributes.class;
   input(type="checkbox", name=`attr_${name}`, class=["hidden", classes])&attributes(attributes)
+  
+mixin hidden-input(name)
+  input(type="hidden", name=`attr_${name}`)&attributes(attributes)
 
 mixin autoexpand(name)
   div(class=["auto-expand", attributes.class])

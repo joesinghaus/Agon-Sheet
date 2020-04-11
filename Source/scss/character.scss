@@ -3,7 +3,7 @@
   align-items: start;
   gap: 5px;
   font-size: 12px;
-  grid-template: auto 22px repeat(4, auto) / 6.8fr 3.2fr 5fr 5fr;
+  grid-template: auto 23px repeat(4, auto) / 6.8fr 3.2fr 5fr 5fr;
 }
 
 .sheet-logo {
@@ -117,7 +117,8 @@
     }
   }
   .sheet-auto-expand {
-    flex: 1 0 auto;
+    flex: 1 1 auto;
+    width: 0;
     font-size: 13px;
     line-height: 1.2;
     min-height: 18px;
@@ -272,6 +273,7 @@
     }
     .sheet-title {
       @include title-text;
+      margin-bottom: 10px;
     }
   }
   .sheet-agony {
@@ -292,7 +294,7 @@
     .sheet-title {
       @include title-text;
       padding-left: 2px;
-      margin-bottom: 3px;
+      margin-bottom: 10px;
     }
     .repitem {
       display: grid;
@@ -338,7 +340,7 @@
   .sheet-title {
     @include title-text;
     padding-left: 2px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
   }
   .repitem {
     display: flex;
