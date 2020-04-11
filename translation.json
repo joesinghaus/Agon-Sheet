@@ -73,6 +73,8 @@
 	"recite_your_deeds": "Recite your deeds",
 	"resolve_spirit": "Resolve & Spirit",
 	"resolve_spirit_br": "Resolve &<br>Spirit",
+	"roll_prevails": "Your action goes well and you overcome the challenge. The best hero earns Glory equal to the target number. Heroes who prevail earn half that amount (round up).",
+	"roll_suffers": "Heroes who suffer each earn 1 Glory.",
 	"scion_of": "Scion Of",
 	"spend_divine_favor": "Spend Divine Favor",
 	"strength": "Strength",

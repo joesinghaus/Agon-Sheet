@@ -55,7 +55,7 @@ mixin infobox(name)
         data-i18n=`${domainName}_br`,
         name=`roll_${domainName}`,
         type="roll",
-        value=`&{template:agon} {{type=${domainName}}} {{obstacle=[[@{obstacle_query}]]}} {{roll=[[{@{name_die}[@{name_translated}] + @{${domainName}_die}[@{${domainName}_translated}] @{epithet_query} @{${domainName}_extra_domain_query} + @{bonusdice_query}[@{advantage_bond_support_translated}]}k2 + @{divine_favor_query}d4k1[@{divine_favor_translated}] ]]}}`)
+        value=`&{template:agon-hero} {{name=@{character_name}}} {{type=${domainName}}} {{obstacle=[[@{obstacle_query}]]}} {{roll=[[{@{name_die}[@{name_translated}] + @{${domainName}_die}[@{${domainName}_translated}] @{epithet_query} @{${domainName}_extra_domain_query} + @{bonusdice_query}[@{advantage_bond_support_translated}]}k2 + @{divine_favor_query}d4k1[@{divine_favor_translated}] ]]}}`)
       +die-select(`${domainName}_die`, ["d6", "d8", "d10"])
 
 //- Divine Favor

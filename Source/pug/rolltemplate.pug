@@ -1,0 +1,18 @@
+rolltemplate.sheet-rolltemplate-agon-hero
+  | {{#rollGreater() obstacle roll}}
+  .suffers
+  | {{/rollGreater() obstacle roll}}
+  | {{#^rollGreater() obstacle roll}}
+  .prevails
+  | {{/^rollGreater() obstacle roll}}
+  .holder
+    div(class!="type type-{{type}}")
+    .target="{{obstacle}}"
+    .result="{{roll}}"
+    .name="{{name}}"
+    | {{#rollGreater() obstacle roll}}
+    .description(data-i18n="roll_suffers")
+    | {{/rollGreater() obstacle roll}}
+    | {{#^rollGreater() obstacle roll}}
+    .description(data-i18n="roll_prevails")
+    | {{/^rollGreater() obstacle roll}}
