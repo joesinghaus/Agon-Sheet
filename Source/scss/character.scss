@@ -259,9 +259,11 @@ $domains: ("arts_oration" "blood_valor" "craft_reason" "resolve_spirit");
   margin: 5px 0 0 5px;
   .sheet-pathos-fate {
     border-right: $bordercolor;
+    border-bottom: $bordercolor;
     display: flex;
     align-items: center;
     flex-flow: column;
+    padding-bottom: 8px;
     input[type="checkbox"] {
       &.sheet-circlebox,
       &.sheet-squarebox {
@@ -372,8 +374,13 @@ $domains: ("arts_oration" "blood_valor" "craft_reason" "resolve_spirit");
     align-items: center;
     margin: 5px 0 0 3px;
     .sheet-squarebox + span {
-      margin-right: 3px;
+      margin-right: 5px;
     }
+  }
+  .sheet-divider {
+    height: 2px;
+    background: black;
+    margin-top: 5px;
   }
 }
 
@@ -394,7 +401,7 @@ $domains: ("arts_oration" "blood_valor" "craft_reason" "resolve_spirit");
     gap: 5px;
     padding: 3px;
   }
-  input[type=number].sheet-value {
+  input[type="number"].sheet-value {
     width: 100%;
     font-size: 13px;
   }
