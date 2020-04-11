@@ -107,7 +107,7 @@ mixin infobox(name)
     .title(data-i18n="bonds")
     fieldset.repeating_bonds
       +number-input("bond_number")(value="0").bond-number
-      +text-input("bond_name").bond-name
+      +text-input("bond_name")(data-i18n="bond").bond-name
     .bond-uses
       .top(data-i18n="bond_use_top")
       each i in range(1,3)
@@ -133,9 +133,9 @@ mixin boon(name, numboxes)
     each boon in BOONS[1]
       +boon(boon.name, boon.numboxes || 1)
 
-+title-vertical("virtues").virtues
-  .content
-    each virtue in ["acumen", "courage", "grace", "passion"]
-      .virtue
-        +number-input(virtue)(value="0").value
-        .title(data-i18n=virtue)
+.virtues
+  .title(data-i18n="virtues")
+  each virtue in ["acumen", "courage", "grace", "passion"]
+    .virtue
+      +number-input(virtue)(value="0").value
+      .title(data-i18n=virtue) 

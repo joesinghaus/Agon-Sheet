@@ -3,7 +3,7 @@
   align-items: start;
   gap: 5px;
   font-size: 12px;
-  grid-template: auto 23px repeat(4, auto) / 6.8fr 3.2fr 5fr 5fr;
+  grid-template: auto 23px repeat(4, auto) / 6.5fr 3.5fr 5.2fr 4.8fr;
 }
 
 .sheet-logo {
@@ -20,8 +20,8 @@
 
 @mixin leftshift {
   position: relative;
-  left: -19px;
-  width: calc(100% + 19px);
+  left: -17px;
+  width: calc(100% + 17px);
 }
 
 @mixin right-checkboxes {
@@ -50,7 +50,7 @@
   column-gap: 3px;
   > .sheet-title {
     @include title-text;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1;
     writing-mode: vertical-rl;
     text-orientation: sideways;
@@ -102,13 +102,13 @@
   .sheet-infobox {
     display: grid;
     min-height: 39px;
-    grid-template: auto / 32% 1fr;
+    grid-template: auto / 34% 1fr;
     .sheet-title {
       @include bluebox;
       padding: 3px 7px;
       display: flex;
       align-items: center;
-      font-size: 14px;
+      font-size: 12.5px;
     }
     .sheet-content {
       display: flex;
@@ -159,13 +159,13 @@
     @include bluebox;
     display: block;
     text-align: center;
-    font-size: 13px;
+    font-size: 12px;
     margin: 0;
     padding: 3px 3px 3px 20px;
     line-height: 1.2;
     width: 0;
     flex: 1 1 0;
-    background-size: auto 75%;
+    background-size: auto 65%;
     background-position: 3px center;
     background-repeat: no-repeat;
     &.btn::before {
@@ -173,7 +173,7 @@
     }
   }
   select {
-    width: 45px;
+    width: 39px;
     border-width: 2px 2px 2px 0;
     height: 100%;
     border-color: black;
@@ -201,8 +201,7 @@
 .sheet-favorbox {
   @include bluebox;
   @include right-checkboxes;
-  font-size: 13px;
-  letter-spacing: 0.5px;
+  font-size: 12px;
   border-right: $bordercolor;
   .sheet-label {
     font-weight: bold;
@@ -226,6 +225,7 @@
     column-gap: 5px;
     display: grid;
     font-size: 11px;
+    align-content: start;
     grid-template: auto / repeat(4, 1fr);
     padding-left: 5px;
     > :first-child {
@@ -258,7 +258,7 @@
   align-items: start;
   border-left: $bordercolor;
   display: grid;
-  grid-template: auto / 47px 1fr;
+  grid-template: auto / 57px 1fr;
   margin: 5px 0 0 5px;
   .sheet-pathos-fate {
     border-right: $bordercolor;
@@ -276,7 +276,7 @@
     }
     .sheet-title {
       @include title-text;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
   }
   .sheet-agony {
@@ -328,7 +328,6 @@
     }
     .sheet-bond-use {
       @include title-text;
-      font-size: 13px;
       letter-spacing: 0.5px;
       margin-top: 5px;
       padding: 3px;
@@ -387,23 +386,22 @@
 }
 
 .sheet-virtues {
-  .sheet-content {
-    width: 120px;
-    padding-left: 3px;
-    .sheet-title {
-      @include title-text;
-    }
-    .sheet-virtue {
-      background: #ddd;
-      display: grid;
-      grid-template: auto / 35px 1fr;
-      margin-top: 5px;
-      gap: 5px;
-      padding: 3px;
-    }
-    input[type="number"].sheet-value {
-      width: 100%;
-      font-size: 13px;
+  border-left: $bordercolor;
+  width: 140px;
+  padding-left: 3px;
+  .sheet-title {
+    @include title-text;
   }
+  .sheet-virtue {
+    background: #ddd;
+    display: grid;
+    grid-template: auto / 35px 1fr;
+    margin-top: 5px;
+    gap: 5px;
+    padding: 3px;
+  }
+  input[type="number"].sheet-value {
+    width: 100%;
+    font-size: 13px;
   }
 }

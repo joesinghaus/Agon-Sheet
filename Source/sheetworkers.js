@@ -11,6 +11,31 @@ function getTranslation(key) {
   return getTranslationByKey(key) || `TRANSLATION_KEY_UNDEFINED: ${key}`;
 }
 
+function fillRepeatingSectionFromData(sectionName, dataList, setter) {
+  const createdIDs = [];
+  const setting = dataList
+    .map((o) => {
+      let rowID;
+      while (!rowID) {
+        let newID = generateRowID();
+        if (!createdIDs.includes(newID)) {
+          rowID = newID;
+          createdIDs.push(rowID);
+        }
+      }
+      const newAttrs = {};
+      return Object.keys(o).reduce((m, key) => {
+        m[`repeating_${sectionName}_${rowID}_${key}`] = o[key];
+        return m;
+      }, newAttrs);
+    })
+    .forEach(o => setter.setAttrs(o));
+}
+function fillEmptyRows(sectionName, n, setter) {
+  const data = [...Array(n).keys()].map(() => ({"autogen": "1"}));
+  fillRepeatingSectionFromData(sectionName, data, setter);
+}
+
 // Convenience function that wraps Roll20 functions. Callback will be called with
 // an attribute setter proxy, which allows us to get and set function values using
 // object syntax. Optionally, a second argument is the setter itself, in order to
@@ -113,6 +138,11 @@ function query(question, options) {
   return `?{${getTranslation(question)}|${options.join('|')}}`;
 }
 
+function performFirstTimeSetup(setter) {
+  fillEmptyRows("bonds", 8, setter);
+  fillEmptyRows("deeds", 5, setter);
+}
+
 function setEpithetQuery(attrs) {
   const kNameDice = "roll=[[{@{name_die}[@{name_translated}]";
   const epithet_options = [
@@ -151,7 +181,9 @@ register(kExtraEpithetField, function () {
 }, "Handle adding or removing an extra epithet");
 
 registerOpened(function () {
-  getSetAttrs([kExtraEpithetField, kPathosGivesTwoDiceField], function (attrs, setter) {
+  getSetAttrs([kExtraEpithetField, kPathosGivesTwoDiceField, "version"], function (attrs, setter) {
+    if (!attrs["version"]) performFirstTimeSetup(setter);
+
     setter.setAttrs({
       "advantage_bond_support_translated": getTranslation("advantage_bond_support"),
       "bonusdice_query": query("bonusdice_query", [0]),
