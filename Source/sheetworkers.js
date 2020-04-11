@@ -67,108 +67,101 @@ function getSetAttrs(attrs, callback, finalCallback) {
 
 // We define our own wrappers for Roll20 event handlers to provide
 // a bit more useful feedback and reduce boilerplate.
-function register(attrs, callback) {
+function register(attrs, callback, handlerName) {
   if (typeof attrs == "string") attrs = [attrs];
 
-  console.log(`Registering callback for: ${attrs.join(", ")}`);
-  const eventString = attrs.map((x) => `change:${x}`).join(" ");
-  on(eventString, (event) => {
-    console.log(`Triggering for attribute ${event.sourceAttribute}.`);
+  console.log(`Registering ${handlerName ? `'${handlerName}'` : "handler"} for attributes: ${attrs.join(", ")}`);
+  on(attrs.map((x) => `change:${x}`).join(" "), (event) => {
+    console.log(`Triggering ${handlerName ? `'${handlerName}'` : "handler"} for attribute: ${event.sourceAttribute}.`);
     callback(event);
   });
 }
-function registerOpened(callback) {
-  console.log("Registering on sheet opening.");
+function registerOpened(callback, handlerName) {
+  console.log(`Registering ${handlerName ? `'${handlerName}'` : "handler"} for sheet opening.`);
   on("sheet:opened", () => {
-    console.log("Triggering for sheet opening.");
+    console.log(`Triggering ${handlerName ? `'${handlerName}'` : "handler"} for sheet opening.`);
     callback();
   });
 }
-function registerButton(name, callback) {
-  console.log(`Registering for button: ${name}`);
+function registerButton(buttonName, callback, handlerName) {
+  console.log(`Registering ${handlerName ? `'${handlerName}'` : "handler"} for button: ${buttonName}}.`);
   const throttledFunction = _.throttle(
     (event) => {
-      console.log(`Triggering for button: ${name}`);
+      console.log(`Triggering ${handlerName ? `'${handlerName}'` : "handler"} for button: ${buttonName}}.`);
       callback(event);
     },
     200,
     { trailing: false }
   );
-  on(`clicked:${name}`, throttledFunction);
+  on(`clicked:${buttonName}`, throttledFunction);
 }
 
-/* DATA */
+/* Constants */
 const kSheetVersion = "1.0";
-const kExtraEpithetField = "boons_4_check_1";
-const kComma = "&" + "#44" + ";";
 const kBrace = "&" + "#125" + ";";
-const kDBrace = kBrace + kBrace;
-const DOMAINS = [
+const kDoubleBrace = kBrace + kBrace;
+const kExtraEpithetField = "boons_4_check_1";
+const kPathosGivesTwoDiceField = "boons_6_check_1";
+const kDomains = [
   "arts_oration",
   "blood_valor",
   "craft_reason",
   "resolve_spirit",
 ];
+
 function query(question, options) {
   return `?{${getTranslation(question)}|${options.join('|')}}`;
 }
 
-function handleSheetInit() {
-  /* Setup and upgrades */
-  getAttrs(["version"], (v) => {
-    const addVersion = (object, version) => {
-      object.version = version;
-      object.character_sheet = `Agon v${version}`;
-      return object;
-    };
-    const upgradeSheet = (version) => {
-      console.log(`Found version ${version}.`);
-      if (version !== kSheetVersion) console.log("Performing sheet upgrade.");
-      mySetAttrs(addVersion({}, kSheetVersion));
-    };
-  });
-}
-
-function calculateEpithetQuery(attrs) {
+function setEpithetQuery(attrs) {
+  const kNameDice = "roll=[[{@{name_die}[@{name_translated}]";
   const epithet_options = [
-    `${getTranslation("none")}, `,
-    `@{epithet}, + @{epithet_die}[${getTranslation("epithet")}]`,
+    `${getTranslation("none")},${kNameDice}`,
+    `@{epithet},epithet=@{epithet}${kDoubleBrace} {{${kNameDice} + @{epithet_die}[${getTranslation("epithet")}]`,
   ];
-  console.log(attrs[kExtraEpithetField]);
   if (attrs[kExtraEpithetField] === "1") {
     epithet_options.push(...[
-      `@{epithet_2}, + @{epithet_2_die}[${getTranslation("epithet")}]`,
-      `@{epithet} ${getTranslation("and")} @{epithet_2}, + (@{epithet_die} + @{epithet_2_die})[${getTranslation("epithet")}]`,
+      `@{epithet_2},epithet=@{epithet_2}${kDoubleBrace} {{${kNameDice} + @{epithet_die}[${getTranslation("epithet")}]`,
+      `@{epithet} ${getTranslation("and")} @{epithet_2},epithet=@{epithet} ${getTranslation("and")} @{epithet_2}${kDoubleBrace} {{${kNameDice} + 2@{epithet_die}[${getTranslation("epithet")}]`,
     ])
   }
-  return query("epithet_dice_query", epithet_options);
+  attrs["epithet_and_name_query"] = query("epithet_dice_query", epithet_options);
 }
 
+function setupDomainQueries(attrs) {
+  const multiplier = attrs[kPathosGivesTwoDiceField] === "1" ? "2" : "";
+  kDomains.forEach(domain => {
+    const query_entries = [
+      `${getTranslation("no")}, `,
+      ...kDomains
+        .filter(other => other != domain)
+        .map(other => `${getTranslation(other)}, + ${multiplier}@{${other}_die}[${getTranslation(other)}]`)
+    ];
+    attrs[`${domain}_extra_domain_query`] = query("add_domain_spend_pathos", query_entries);
+    attrs[`${domain}_translated`] = getTranslation(domain);
+  });
+}
+
+register(kPathosGivesTwoDiceField, function () {
+  getSetAttrs([kPathosGivesTwoDiceField], setupDomainQueries);
+}, "Handle giving two dice for extra domain");
+
 register(kExtraEpithetField, function () {
-  getSetAttrs([kExtraEpithetField], function(attrs) {
-    calculateEpithetQuery(attrs);
-  })
-});
+  getSetAttrs([kExtraEpithetField], setEpithetQuery);
+}, "Handle adding or removing an extra epithet");
 
 registerOpened(function () {
-  getSetAttrs([kExtraEpithetField], function(attrs) {
-    attrs["advantage_bond_support_translated"] = getTranslation("advantage_bond_support");
-    attrs["bonusdice_query"] = query("bonusdice_query", [0]);
-    attrs["divine_favor_query"] = query("spend_divine_favor", [0]);
-    attrs["divine_favor_translated"] =  getTranslation("divine_favor");
-    attrs["name_translated"] = getTranslation("name");
-    attrs["obstacle_query"] = query("obstacle", [0]);
-    attrs["epithet_query"] = calculateEpithetQuery(attrs);
-
-    DOMAINS.forEach(domain => {
-      const query_entries = [
-        `${getTranslation("no")}, `,
-        ...DOMAINS
-          .filter(other => other != domain)
-          .map(other => `${getTranslation(other)}, + @{${other}_die}[${getTranslation(other)}]`)
-      ];
-      attrs[`${domain}_extra_domain_query`] = query("add_domain_spend_pathos", query_entries);
-      attrs[`${domain}_translated`] = getTranslation(domain);
+  getSetAttrs([kExtraEpithetField, kPathosGivesTwoDiceField], function (attrs, setter) {
+    setter.setAttrs({
+      "advantage_bond_support_translated": getTranslation("advantage_bond_support"),
+      "bonusdice_query": query("bonusdice_query", [0]),
+      "divine_favor_query": query("spend_divine_favor", [0]),
+      "divine_favor_translated": getTranslation("divine_favor"),
+      "name_translated": getTranslation("name"),
+      "target_query": query("target_number", [0]),
+      "version": kSheetVersion,
     });
+    setEpithetQuery(attrs);
+    setupDomainQueries(attrs);
   });
-});
+}, "Handle setting default attributes when opening the sheet");

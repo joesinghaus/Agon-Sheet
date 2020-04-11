@@ -221,13 +221,16 @@
 .sheet-recite {
   @include leftshift;
   grid-row: 6;
-  grid-column: span 2;
+  grid-column: span 3;
   .sheet-content {
     column-gap: 5px;
     display: grid;
     font-size: 11px;
     grid-template: auto / repeat(4, 1fr);
     padding-left: 5px;
+    > :first-child {
+      margin-bottom: 5px;
+    }
     > :first-child,
     > :last-child {
       grid-column: span 4;
@@ -335,7 +338,8 @@
 }
 
 .sheet-great-deeds-boons {
-  grid-row: span 5;
+  grid-row: span 4;
+  margin-top: 5px;
   border-left: $bordercolor;
   .sheet-title {
     @include title-text;
@@ -383,23 +387,23 @@
 }
 
 .sheet-virtues {
-  border-left: $bordercolor;
-  margin-left: 5px;
-  width: 100px;
-  padding-left: 3px;
-  .sheet-title {
-    @include title-text;
+  .sheet-content {
+    width: 120px;
+    padding-left: 3px;
+    .sheet-title {
+      @include title-text;
+    }
+    .sheet-virtue {
+      background: #ddd;
+      display: grid;
+      grid-template: auto / 35px 1fr;
+      margin-top: 5px;
+      gap: 5px;
+      padding: 3px;
+    }
+    input[type="number"].sheet-value {
+      width: 100%;
+      font-size: 13px;
   }
-  .sheet-virtue {
-    background: #ddd;
-    display: grid;
-    grid-template: auto / 35px 1fr;
-    margin-top: 5px;
-    gap: 5px;
-    padding: 3px;
-  }
-  input[type="number"].sheet-value {
-    width: 100%;
-    font-size: 13px;
   }
 }

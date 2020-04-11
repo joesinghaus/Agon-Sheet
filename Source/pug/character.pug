@@ -34,10 +34,9 @@ mixin infobox(name)
   +infobox("epithet").epithet
     +autoexpand("epithet")
     +die-select("epithet_die", ["d6", "d8", "d10"])
-  +hidden-input("boons_4_check_1").hider
+  +hidden-input("boons_4_check_1")(value="0").hider
   +infobox("epithet").epithet
     +autoexpand("epithet_2")
-    +die-select("epithet_2_die", ["d6", "d8", "d10"])
   +infobox("name").character-name
     +text-input("character_name")
     +die-select("name_die", ["d6", "d8", "d10", "d12"])
@@ -59,7 +58,7 @@ mixin infobox(name)
         data-i18n=`${domainName}_br`,
         name=`roll_${domainName}`,
         type="roll",
-        value=`&{template:agon-hero} {{name=@{character_name}}} {{type=${domainName}}} {{obstacle=[[@{obstacle_query}]]}} {{roll=[[{@{name_die}[@{name_translated}] + @{${domainName}_die}[@{${domainName}_translated}] @{epithet_query} @{${domainName}_extra_domain_query} + @{bonusdice_query}[@{advantage_bond_support_translated}]}k2 + @{divine_favor_query}d4k1[@{divine_favor_translated}] ]]}}`)
+        value=`&{template:agon-hero} {{name=@{character_name}}} {{type=${domainName}}} {{obstacle=[[@{target_query}]]}} {{@{epithet_and_name_query} + @{${domainName}_die}[@{${domainName}_translated}] @{${domainName}_extra_domain_query} + @{bonusdice_query}[@{advantage_bond_support_translated}]}k2 + @{divine_favor_query}d4k1[@{divine_favor_translated}] ]]}}`)
       +die-select(`${domainName}_die`, ["d6", "d8", "d10"])
 
 //- Divine Favor
@@ -134,9 +133,9 @@ mixin boon(name, numboxes)
     each boon in BOONS[1]
       +boon(boon.name, boon.numboxes || 1)
 
-.virtues
-  .title(data-i18n="virtues")
-  each virtue in ["acumen", "courage", "grace", "passion"]
-    .virtue
-      +number-input(virtue)(value="0").value
-      .title(data-i18n=virtue)
++title-vertical("virtues").virtues
+  .content
+    each virtue in ["acumen", "courage", "grace", "passion"]
+      .virtue
+        +number-input(virtue)(value="0").value
+        .title(data-i18n=virtue)
