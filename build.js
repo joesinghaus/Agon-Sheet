@@ -4,6 +4,8 @@ const pug = require("pug"),
   sass = require("node-sass"),
   babel = require("jstransformer")(require("jstransformer-uglify-es"));
 
+const printPretty = true;
+
 const printOutput = (() => {
   let counter = 0;
   return () => {
@@ -17,7 +19,7 @@ const printOutput = (() => {
 sass.render(
   {
     file: "Source/agon.scss",
-    outputStyle: "compressed",
+    outputStyle: printPretty ? "expanded" : "compressed",
   },
   (error, result) => {
     if (!error) {
@@ -38,11 +40,12 @@ sass.render(
 
 // Build sheet workers
 const options = {
+  pretty: printPretty,
   translation: JSON.parse(fs.readFileSync("translation.json", "utf8")),
   workers: fs.readFileSync("Source/sheetworkers.js", "utf8").trim(),
 };
 try {
-  options.workers = `(function () {${babel.render(options.workers).body}})();`;
+  options.workers = `(function () {\n${printPretty ? options.workers : babel.render(options.workers).body}}\n)();`;
 } catch (err) {
   console.log(
     "jstransformer or jstransformer-babel did not execute successfully. Proceeding without minifying sheet workers. Error message was:"
