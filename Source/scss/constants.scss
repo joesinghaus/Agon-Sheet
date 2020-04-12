@@ -8,13 +8,6 @@ $darkred:  #669999;
 
 $bordercolor: 2px solid black;
 
-@mixin title-text {
-  text-transform: uppercase;
-  font-size: 12px;
-  font-family: 'Della Respira', serif;
-}
-
-
 $sheet-width-character: 860px;
 $repo: "https://raw.githubusercontent.com/joesinghaus/Agon-sheet/master/Assets";
 $domains: ("arts_oration" "blood_valor" "craft_reason" "resolve_spirit");

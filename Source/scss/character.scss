@@ -93,7 +93,7 @@
     gap: 5px;
     padding-left: 5px;
     grid-template: auto/ 22% 32% 1fr;
-    font-size: 10px;
+    font-size: 12px;
     label {
       line-height: 1;
       align-items: center;
@@ -131,7 +131,7 @@
     .sheet-content {
       display: flex;
       align-items: center;
-      border: 2px solid black;
+      border: $bordercolor;
       input[type=text],
       .sheet-auto-expand {
         padding: 2px 4px;
@@ -148,6 +148,8 @@
   }
   select {
     width: 45px;
+    height: 100%;
+    border-left: $bordercolor;
   }
 }
 
@@ -197,7 +199,7 @@
     width: 39px;
     border-width: 2px 2px 2px 0;
     height: 100%;
-    border-color: black;
+    border: $bordercolor;
   }
   .sheet-domain {
     display: flex;
@@ -311,6 +313,7 @@
     }
     .sheet-title {
       @include title-text;
+      padding: 0 1px;
       margin-bottom: 5px;
     }
   }

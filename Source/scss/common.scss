@@ -12,14 +12,12 @@
 .sheet-container {
   position: relative;
   max-width: 1190px;
-  min-width: 830px;
+  min-width: 860px;
 }
 
 div,
 span,
 textarea,
-ul,
-li,
 span,
 label {
   box-sizing: border-box;
@@ -27,6 +25,7 @@ label {
 select {
   font-size: 12px;
   line-height: 1;
+  border-radius: 0;
   margin: 0;
   padding: 0;
 }
@@ -119,30 +118,6 @@ input[type="radio"] {
     display: inline-block;
     transition: all 0.2s, opacity 0s;
   }
-}
-
-ul {
-  list-style: none;
-  margin: 0;
-}
-
-button[type="roll"].sheet-inherit,
-input[type="text"].sheet-inherit {
-  font: inherit;
-  color: inherit;
-  border: none;
-  padding: 0;
-  text-transform: inherit;
-  letter-spacing: inherit;
-}
-.sheet-space-after::after {
-  content: " ";
-}
-.sheet-colon-after::after {
-  content: ": ";
-}
-.sheet-sentence-end::after {
-  content: ". ";
 }
 
 .sheet-logo {
@@ -446,4 +421,10 @@ input.sheet-zero {
   padding: 0 3px;
   width: 100%;
   font-size: 13px;
+}
+
+@mixin title-text {
+  text-transform: uppercase;
+  font-size: 12px;
+  font-family: 'Della Respira', serif;
 }

@@ -128,6 +128,7 @@ const kBrace = "&" + "#125" + ";";
 const kDoubleBrace = kBrace + kBrace;
 const kExtraEpithetField = "boons_4_check_1";
 const kPathosGivesTwoDiceField = "boons_6_check_1";
+const kSpendDivineFavorBoon = "boons_7_check_1";
 const kDomains = [
   "arts_oration",
   "blood_valor",
@@ -285,6 +286,15 @@ function setupDomainQueries(attrs) {
   });
 }
 
+function setupDivineFavorQuery(attrs) {
+  const base_query = query("spend_divine_favor", [0]);
+  if (attrs[kSpendDivineFavorBoon] === "1") {
+    attrs["divine_favor_query"] = `[[${base_query} + 2*{${base_query},1}kl1]]`;
+  } else {
+    attrs["divine_favor_query"] = base_query;
+  }
+}
+
 register(
   kPathosGivesTwoDiceField,
   function () {
@@ -301,9 +311,17 @@ register(
   "Handle adding or removing an extra epithet"
 );
 
+register(
+  kSpendDivineFavorBoon,
+  function () {
+    getSetAttrs([kSpendDivineFavorBoon], setupDivineFavorQuery);
+  },
+  "Handle boon for getting +2d4 on spending divine favor"
+)
+
 registerOpened(function () {
   getSetAttrs(
-    [kExtraEpithetField, kPathosGivesTwoDiceField, "version"],
+    [kExtraEpithetField, kPathosGivesTwoDiceField, kSpendDivineFavorBoon, "version"],
     function (attrs, setter) {
       if (!attrs["version"]) performFirstTimeSetup(attrs, setter);
 
@@ -312,12 +330,12 @@ registerOpened(function () {
           "advantage_bond_support"
         ),
         bonusdice_query: query("bonusdice_query", [0]),
-        divine_favor_query: query("spend_divine_favor", [0]),
         target_query: query("target_number", [0]),
         version: kSheetVersion,
       });
       setEpithetQuery(attrs);
       setupDomainQueries(attrs);
+      setupDivineFavorQuery(attrs);
     }
   );
 }, "Handle setting default attributes when opening the sheet");
