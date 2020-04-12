@@ -236,7 +236,7 @@ function query(question, options) {
 
 function performFirstTimeSetup(attrs, setter) {
   fillEmptyRows("bonds", 8, setter);
-  fillEmptyRows("deeds", 5, setter);
+  fillEmptyRows("deeds", 4, setter);
   kLabelAttributes.forEach(name => {
     attrs[`${name}_label`] = getTranslation(name);
   })

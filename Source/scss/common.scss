@@ -254,6 +254,10 @@ input[type="text"].sheet-inherit {
 }
 .itemcontrol {
   z-index: 20;
+  .btn {
+    padding: 0 6px;
+    line-height: 16px;
+  }
 }
 
 /* CHECKBOXES */
