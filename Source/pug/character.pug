@@ -86,7 +86,7 @@ mixin infobox(name)
     .recite-box
       +text-input(`${domainName}_label`)(value=locals.translation[domainName]).title
       +autoexpand(`recite_${domainName}_label`)
-        =locals.translation[`recite_${domainName}`]
+        !=locals.translation[`recite_${domainName}`].replace(/\n/g, "&#10;")
   +autoexpand("recite_bottom_label")
     =locals.translation["recite_bottom"]
 
