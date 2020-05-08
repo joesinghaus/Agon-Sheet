@@ -16,7 +16,8 @@
   @include title-text;
   background-color: $lightblue;
   padding: 3px;
-  input[type=text], .sheet-auto-expand {
+  input[type="text"],
+  .sheet-auto-expand {
     @include title-text;
   }
 }
@@ -132,11 +133,11 @@
       display: flex;
       align-items: center;
       border: $bordercolor;
-      input[type=text],
+      input[type="text"],
       .sheet-auto-expand {
         padding: 2px 4px;
       }
-      input[type=text],
+      input[type="text"],
       .sheet-auto-expand {
         flex: 1 1 auto;
         width: 0;
@@ -158,7 +159,7 @@
 }
 
 @each $domain in $domains {
-  button[type=roll].sheet-domain-button-#{$domain} {
+  button[type="roll"].sheet-domain-button-#{$domain} {
     background-image: url("#{$repo}/#{$domain}.png");
   }
 }
@@ -174,10 +175,10 @@
   margin-top: 5px;
   .sheet-title {
     @include title-text;
-    height: 12px; 
+    height: 12px;
     padding-left: 2px;
   }
-  button[type=roll].btn {
+  button[type="roll"].btn {
     @include bluebox;
     display: block;
     text-align: center;
@@ -196,7 +197,7 @@
     }
   }
   select {
-    width: 39px;
+    width: 49px;
     border-width: 2px 2px 2px 0;
     height: 100%;
     border: $bordercolor;
@@ -204,7 +205,7 @@
   .sheet-domain {
     display: flex;
     height: 39px;
-    &:last-child button[type=roll] {
+    &:last-child button[type="roll"] {
       background-position: 8px center;
     }
   }
@@ -304,7 +305,7 @@
     align-items: center;
     flex-flow: column;
     padding-bottom: 8px;
-    input[type=checkbox] {
+    input[type="checkbox"] {
       &.sheet-circlebox,
       &.sheet-squarebox {
         margin-right: 0;
@@ -344,11 +345,11 @@
       grid-template: auto / 30px 1fr;
       margin-bottom: 4px;
     }
-    input[type=number] {
+    input[type="number"] {
       font-size: 12px;
       width: 100%;
     }
-    .repitem input[type=text] {
+    .repitem input[type="text"] {
       font-size: 12px;
       width: 100%;
     }
@@ -438,7 +439,7 @@
     gap: 5px;
     padding: 3px;
   }
-  input[type=number].sheet-value {
+  input[type="number"].sheet-value {
     width: 100%;
     font-weight: bold;
     font-size: 13px;

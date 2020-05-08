@@ -1,4 +1,5 @@
-.sheet-rolltemplate-agon-hero {
+.sheet-rolltemplate-agon-hero,
+.sheet-rolltemplate-agon-strife {
   .sheet-holder {
     color: white;
     position: relative;
@@ -26,6 +27,31 @@
   .withoutavatars & {
     margin-left: -15px;
   }
+  .sheet-type {
+    background-image: url("#{$repo}/rolltemplate/type_any.png");
+    width: 93px;
+    height: 33px;
+    background-size: 100% 100%;
+    z-index: 1;
+  }
+  @each $domain in $domains {
+    .sheet-type.sheet-type-#{$domain} {
+      background-image: url("#{$repo}/rolltemplate/type_#{$domain}.png");
+    }
+  }
+  .inlinerollresult {
+    border: none !important;
+    background-color: transparent;
+    font-weight: bold;
+    padding: 0 3px 0 0;
+    font-size: 20px;
+  }
+}
+
+.sheet-rolltemplate-agon-hero {
+  .sheet-holder {
+    padding: 51px 20px 29px 33px;
+  }
   .sheet-suffers ~ .sheet-holder {
     background-image: url("#{$repo}/rolltemplate/bg_suffers.png");
     grid-template: 33px 42px 42px 69px/ 120px 1fr;
@@ -36,21 +62,14 @@
     grid-template: 33px 42px 42px 200px/ 120px 1fr;
     height: 407px;
   }
-  .sheet-target, .sheet-result, .sheet-name, .sheet-description {
-    z-index: 1;
-  }
   .sheet-type {
-    background-image: url("#{$repo}/rolltemplate/type_any.png");
-    width: 93px;
     grid-column: span 2;
-    height: 33px;
-    background-size: 100% 100%;
-    z-index: 1;
   }
-  @each $domain in $domains {
-    .sheet-type.sheet-type-#{$domain} {
-      background-image: url("#{$repo}/rolltemplate/type_#{$domain}.png");
-    }
+  .sheet-target,
+  .sheet-result,
+  .sheet-name,
+  .sheet-description {
+    z-index: 1;
   }
   .sheet-target {
     padding-left: 61px;
@@ -70,12 +89,24 @@
     grid-column: span 2;
     padding-right: 20px;
   }
-  
-  .inlinerollresult {
-    border: none !important;
-    background-color: transparent;
-    font-weight: bold;
-    padding: 0 3px 0 0;
-    font-size: 20px;
+}
+
+.sheet-rolltemplate-agon-strife {
+  .sheet-holder {
+    background-image: url("#{$repo}/rolltemplate/bg_strife.png");
+    padding: 84px 20px 29px 21px;
+    grid-template: 39px 32px 47px / auto;
+    height: 252px;
+  }
+  .sheet-type {
+    width: 124px;
+    height: 44px;
+  }
+  .sheet-roll {
+    color: black;
+    padding-left: 127px;
+  }
+  .sheet-harm {
+    @include title-text;
   }
 }

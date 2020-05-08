@@ -14,3 +14,9 @@ rolltemplate.sheet-rolltemplate-agon-hero
     | {{/rollGreater() obstacle roll}} {{#^rollGreater() obstacle roll}}
     .description(data-i18n="roll_prevails")
     | {{/^rollGreater() obstacle roll}}
+
+rolltemplate.sheet-rolltemplate-agon-strife
+  .holder
+    div(class!="type type-{{type}}")
+    .harm="{{harm}}"
+    .roll="{{roll}}"

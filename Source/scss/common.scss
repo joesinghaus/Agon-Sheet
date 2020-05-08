@@ -36,7 +36,8 @@ select {
   margin-bottom: 10px;
 }
 
-button[type="roll"] {
+button[type="roll"],
+button[type="action"] {
   display: flex;
   border: none;
   margin: 0;
@@ -93,7 +94,8 @@ textarea {
   border-radius: 0;
   transition: all 0.2s, height 0.4s;
   &:focus {
-    box-shadow: inset 0 0 1px 1px rgba(66, 66, 66, 0.3), 0 0 2px 1px rgba(66, 66, 66, 0.3);
+    box-shadow: inset 0 0 1px 1px rgba(66, 66, 66, 0.3),
+      0 0 2px 1px rgba(66, 66, 66, 0.3);
   }
 }
 
@@ -298,6 +300,19 @@ input[type="checkbox"].sheet-circlebox {
     border-radius: 50%;
   }
 }
+input[type="checkbox"].sheet-trianglebox {
+  @include checkbox;
+  & + span {
+    height: 0;
+    width: 0;
+    border-color: transparent;
+    border-top-color: white;
+    border-width: 12px 6px 0;
+  }
+  &:checked + span {
+    border-top-color: red;
+  }
+}
 input[type="checkbox"].sheet-diamondbox {
   @include checkbox;
   & + span {
@@ -315,7 +330,8 @@ input[type="checkbox"].sheet-diamondbox {
     width: 2px;
     height: 19px;
   }
-  &:checked + span::before, &:hover + span {
+  &:checked + span::before,
+  &:hover + span {
     opacity: 1;
   }
   &:checked:hover + span::before {
@@ -332,24 +348,30 @@ input[type="checkbox"].sheet-diamondbox {
 input[type="checkbox"].sheet-circlebox.sheet-fakeradio + span {
   background: $darkred;
 }
-.sheet-fakeradio:checked ~ input[type="checkbox"].sheet-circlebox.sheet-fakeradio + span {
+.sheet-fakeradio:checked
+  ~ input[type="checkbox"].sheet-circlebox.sheet-fakeradio
+  + span {
   background: white;
 }
 
 input[type="checkbox"].sheet-squarebox.sheet-fakeradio + span {
   background: $darkred;
 }
-.sheet-fakeradio:checked ~ input[type="checkbox"].sheet-squarebox.sheet-fakeradio + span {
+.sheet-fakeradio:checked
+  ~ input[type="checkbox"].sheet-squarebox.sheet-fakeradio
+  + span {
   background: white;
 }
 
 input[type="checkbox"].sheet-squarebox.sheet-fakeradio2 + span {
   background: $darkred;
 }
-.sheet-fakeradio2:checked ~ input[type="checkbox"].sheet-squarebox.sheet-fakeradio2 + span {
+.sheet-fakeradio2:checked
+  ~ input[type="checkbox"].sheet-squarebox.sheet-fakeradio2
+  + span {
   background: white;
 }
-input[type=checkbox].sheet-dot + span::before {
+input[type="checkbox"].sheet-dot + span::before {
   content: "";
   height: 7px;
   width: 7px;
@@ -426,5 +448,33 @@ input.sheet-zero {
 @mixin title-text {
   text-transform: uppercase;
   font-size: 12px;
-  font-family: 'Della Respira', serif;
+  font-family: "Della Respira", serif;
+}
+
+.sheet-type:not([value=""]) ~ .sheet-type-selector,
+.sheet-type:not([value="character"]) ~ .sheet-type-character,
+.sheet-type:not([value="strife"]) ~ .sheet-type-strife {
+  display: none;
+}
+
+.sheet-type-selector {
+  border: $bordercolor;
+  padding: 15px;
+  margin: 20px auto;
+  width: 240px;
+  text-align: center;
+  .sheet-title {
+    @include title-text;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .sheet-content {
+    display: grid;
+    @include title-text;
+    grid-template: auto / 1fr 1fr;
+  }
+  button[type="action"] {
+    font-size: 14px;
+    justify-content: center;
+  }
 }

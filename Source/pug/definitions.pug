@@ -25,6 +25,20 @@
     ["precision", "artemis"],
     ["wisdom", "athena"],
   ];
+  const WRATH = [
+    "aphrodite",
+    "ares",
+    "athena",
+    "hekate",
+    "hera",
+    "poseidon",
+    "apollo",
+    "artemis",
+    "demeter",
+    "hephaistos",
+    "hermes",
+    "zeus",
+  ];
   NAME_SECTION = [
     ["40", "40"],
     ["80", "80 (D8)"],
@@ -93,7 +107,7 @@ mixin autoexpand(name)
     +textarea(name)(data-i18n-placeholder!=attributes["data-i18n-placeholder"])
       block
 
-mixin die-select(name, options)
+mixin die-select(name, options, selected)
   select(name=`attr_${name}`)
     each option in options
-      option(value=option)=option
+      option(value=option, selected=(option == selected))=option

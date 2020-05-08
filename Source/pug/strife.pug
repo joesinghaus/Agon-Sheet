@@ -1,0 +1,56 @@
+.vault-of-heaven
+  +text-input("the_vault_of_heaven_label")(value=locals.translation["the_vault_of_heaven"]).title
+  .vault-stars
+    each god in WRATH
+      .godname(class=`name-${god}`)
+        span(name=`attr_${god}_label`)
+      each i in range(1,3)
+        label(class= `favor-${god}-${i}`)
+          +checkbox(`favor_${god}_${i}`).diamondbox.large
+  .wrath
+    each god in WRATH
+      .box
+        +text-input(`${god}_label`)(value=locals.translation[god]).title
+        .checks
+          each i in range(1,3)
+            +checkbox(`wrath_${god}_${i}`).trianglebox
+            if i < 3
+              .floatingbar
+
+.roller
+  .harm
+    each harm in ["epic", "mythic", "perilous", "sacred"]
+      .harmbox
+        +text-input(`${harm}_label`)(value=locals.translation[harm]).title
+        +checkbox(harm).squarebox
+  .divine-wrath
+    +text-input("divine_wrath_label")(value=locals.translation["divine_wrath"]).title
+    .checks
+      each die in ["d8", "d10", "d12"]
+        label
+          +checkbox("divine_wrath")(value=die).trianglebox
+          span=die
+  .strife-level
+    +text-input("plus_strife_level_label")(value=locals.translation["plus_strife_level"]).title
+    .checks
+      each level in ["4", "5", "6"]
+        label
+          input(name="attr_strife_level", type="radio", value=level, checked=(level=="5"))
+          span=`+${level}`
+  button(
+    class="strife-button"
+    name="roll_strife",
+    type="roll",
+    data-i18n="roll_strife"
+    value="&{template:agon-strife} @{strife_formula} {{type=@{domain_query}}}"
+  )
+  .dice
+    fieldset.repeating_strifedie
+      +text-input("strifedie_name")(data-i18n-placeholder="die_placeholder")
+      +die-select("strifedie_size", ["d6", "d8", "d10", "d12"], "d8")
+
+.destinies
+  +text-input("island_destinies_label")(value=locals.translation["island_destinies"]).title
+  fieldset.repeating_destiny
+    +text-input("destiny_name")(data-i18n-placeholder="name").name
+    +autoexpand("destiny_notes").notes

@@ -3,37 +3,34 @@
 
 "use strict";
 
-function boolToFlag(v) {
-  return v ? "1" : "0";
-}
-
 function getTranslation(key) {
   return getTranslationByKey(key) || `TRANSLATION_KEY_UNDEFINED: ${key}`;
 }
 
-function fillRepeatingSectionFromData(sectionName, dataList, setter) {
-  const createdIDs = [];
-  const setting = dataList
-    .map((o) => {
-      let rowID;
-      while (!rowID) {
-        let newID = generateRowID();
-        if (!createdIDs.includes(newID)) {
-          rowID = newID;
-          createdIDs.push(rowID);
-        }
-      }
-      const newAttrs = {};
-      return Object.keys(o).reduce((m, key) => {
-        m[`repeating_${sectionName}_${rowID}_${key}`] = o[key];
-        return m;
-      }, newAttrs);
-    })
-    .forEach((o) => setter.setAttrs(o));
+function query(question, options) {
+  return `?{${getTranslation(question)}|${options.join("|")}}`;
 }
-function fillEmptyRows(sectionName, n, setter) {
+
+function fillRepeatingSectionFromData(sectionName, dataList, attrs) {
+  const createdIDs = [];
+  for (let entry of dataList) {
+    let rowID;
+    while (!rowID) {
+      let newID = generateRowID();
+      if (!createdIDs.includes(newID)) {
+        rowID = newID;
+        createdIDs.push(rowID);
+      }
+    }
+    for (let [key, value] of Object.entries(entry)) {
+      attrs[`repeating_${sectionName}_${rowID}_${key}`] = value;
+    }
+  }
+}
+
+function fillEmptyRows(sectionName, n, attrs) {
   const data = [...Array(n).keys()].map(() => ({ autogen: "1" }));
-  fillRepeatingSectionFromData(sectionName, data, setter);
+  fillRepeatingSectionFromData(sectionName, data, attrs);
 }
 
 // Convenience function that wraps Roll20 functions. Callback will be called with
@@ -54,8 +51,8 @@ class AttributeSetter {
     this._targetAttrs[name] = value;
   }
   setAttrs(values) {
-    for (let key in values) {
-      this.setAttr(key, values[key]);
+    for (let [key, value] of Object.entries(values)) {
+      this.setAttr(key, value);
     }
   }
   getAttr(name) {
@@ -64,9 +61,8 @@ class AttributeSetter {
   finalize(callback) {
     getAttrs(Object.keys(this._targetAttrs), (values) => {
       const finalAttrs = {};
-      for (let key in this._targetAttrs) {
-        if (String(this._targetAttrs[key]) !== values[key])
-          finalAttrs[key] = String(this._targetAttrs[key]);
+      for (let [key, value] of Object.entries(this._targetAttrs)) {
+        if (String(value) !== values[key]) finalAttrs[key] = String(value);
       }
       setAttrs(finalAttrs, { silent: true }, callback);
     });
@@ -89,11 +85,45 @@ function getSetAttrs(attrs, callback, finalCallback) {
   });
 }
 
+function getSetRepeating(attrs, sections, callback, finalCallback) {
+  function getSetRepeatingImpl(attrs, sections, sectionToIds, callback) {
+    for (const [sectionName, sectionAttrs] of Object.entries(sections)) {
+      getSectionIDs(`repeating_${sectionName}`, (idArray) => {
+        sectionToIds[sectionName] = idArray;
+        for (const id of idArray) {
+          for (const attr of sectionAttrs) {
+            attrs.push(`repeating_${sectionName}_${id}_${attr}`);
+          }
+        }
+        delete sections[sectionName];
+        getSetRepeatingImpl(
+          attrs,
+          sections,
+          sectionToIds,
+          callback,
+          finalCallback
+        );
+      });
+      return; // Run the loop body at most once.
+    }
+    getAttrs(attrs, (values) => {
+      const setter = new AttributeSetter(values);
+      callback(new Proxy(setter, attributeHandler), sectionToIds, setter);
+      setter.finalize(finalCallback);
+    });
+  }
+  // Copies the attrs and sections arguments so we can happily modify them in the function.
+  getSetRepeatingImpl(
+    [...attrs],
+    JSON.parse(JSON.stringify(sections)),
+    {},
+    callback
+  );
+}
+
 // We define our own wrappers for Roll20 event handlers to provide
 // a bit more useful feedback and reduce boilerplate.
 function register(attrs, callback, handlerName = "handler") {
-  if (typeof attrs == "string") attrs = [attrs];
-
   console.log(`Registering ${handlerName} for attributes: ${attrs.join(", ")}`);
   on(attrs.map((x) => `change:${x}`).join(" "), (event) => {
     console.log(
@@ -109,40 +139,49 @@ function registerOpened(callback, handlerName = "handler") {
     callback();
   });
 }
+function registerSingle(attr, handler, handlerName = "handler") {
+  register([attr], () => getSetAttrs([attr], handler), handlerName);
+  registerOpened(() => getSetAttrs([attr], handler), handlerName);
+}
+
 function registerButton(buttonName, callback, handlerName = "handler") {
-  console.log(`Registering ${handlerName} for button: ${buttonName}}.`);
+  console.log(`Registering ${handlerName} for button: ${buttonName}.`);
   const throttledFunction = _.throttle(
     (event) => {
-      console.log(`Triggering ${handlerName} for button: ${buttonName}}.`);
+      console.log(`Triggering ${handlerName} for button: ${buttonName}.`);
       callback(event);
     },
-    200,
+    50,
     { trailing: false }
   );
   on(`clicked:${buttonName}`, throttledFunction);
 }
 
 /* Constants */
-const kSheetVersion = "1.0";
+const kSheetVersion = "2";
 const kBrace = "&" + "#125" + ";";
 const kDoubleBrace = kBrace + kBrace;
 const kExtraEpithetField = "boons_4_check_1";
 const kPathosGivesTwoDiceField = "boons_6_check_1";
 const kSpendDivineFavorBoon = "boons_7_check_1";
+const kHarms = ["epic", "mythic", "perilous", "sacred"];
 const kDomains = [
   "arts_oration",
   "blood_valor",
   "craft_reason",
   "resolve_spirit",
 ];
+const kInitialStrifeDice = [
+  {
+    strifedie_name: getTranslation("name"),
+  },
+  {
+    strifedie_name: getTranslation("epithet"),
+  },
+];
 const kLabelAttributes = [
   "glory",
-  "name",
   "epithet",
-  "epithet",
-  "epithet",
-  "epithet",
-  "name",
   "name",
   "lineage_pronouns",
   "lineage_pronouns",
@@ -229,21 +268,27 @@ const kLabelAttributes = [
   "courage",
   "grace",
   "passion",
+  "the_vault_of_heaven",
+  "divine_wrath",
+  "plus_strife_level",
+  "island_destinies",
+  "epic",
+  "mythic",
+  "perilous",
+  "sacred",
 ];
 
-function query(question, options) {
-  return `?{${getTranslation(question)}|${options.join("|")}}`;
-}
-
-function performFirstTimeSetup(attrs, setter) {
-  fillEmptyRows("bonds", 8, setter);
-  fillEmptyRows("deeds", 4, setter);
-  kLabelAttributes.forEach(name => {
+function performFirstTimeSetup(attrs) {
+  fillEmptyRows("bonds", 8, attrs);
+  fillEmptyRows("deeds", 4, attrs);
+  fillEmptyRows("destiny", 2, attrs);
+  fillRepeatingSectionFromData("strifedie", kInitialStrifeDice, attrs);
+  for (let name of kLabelAttributes) {
     attrs[`${name}_label`] = getTranslation(name);
-  })
+  }
 }
 
-function setEpithetQuery(attrs) {
+function setupEpithetQuery(attrs) {
   const kNameDice = "roll=[[{@{name_die}[@{name_label}]";
   const epithet_options = [
     `${getTranslation("none")},${kNameDice}`,
@@ -258,15 +303,12 @@ function setEpithetQuery(attrs) {
       ]
     );
   }
-  attrs["epithet_and_name_query"] = query(
-    "epithet_dice_query",
-    epithet_options
-  );
+  attrs["epithet_and_name_query"] = query("epithet_die", epithet_options);
 }
 
 function setupDomainQueries(attrs) {
   const multiplier = attrs[kPathosGivesTwoDiceField] === "1" ? "2" : "";
-  kDomains.forEach((domain) => {
+  for (let domain of kDomains) {
     const query_entries = [
       `${getTranslation("no")}, `,
       ...kDomains
@@ -283,7 +325,11 @@ function setupDomainQueries(attrs) {
       query_entries
     );
     attrs[`${domain}_translated`] = getTranslation(domain);
-  });
+  }
+  attrs["domain_query"] = query("domain", [
+    ...kDomains.map((d) => `@{${d}_label},${d}`),
+    `${getTranslation("any_domain")},any`,
+  ]);
 }
 
 function setupDivineFavorQuery(attrs) {
@@ -295,47 +341,88 @@ function setupDivineFavorQuery(attrs) {
   }
 }
 
-register(
+function calcStrifeRoll(attrs, sectionToIds) {
+  const harmType = kHarms
+    .filter((harm) => attrs[harm] == "1")
+    .map((x) => `@{${x}_label}`)
+    .join(", ");
+  const dieSources = sectionToIds["strifedie"].map((id) => [
+    attrs[`repeating_strifedie_${id}_strifedie_name`],
+    attrs[`repeating_strifedie_${id}_strifedie_size`],
+  ]);
+  if (attrs["divine_wrath"] !== "0") {
+    dieSources.push(["@{divine_wrath_label}", "@{divine_wrath}"]);
+  }
+  const dieFormula = dieSources
+    .map(([name, die]) => `${die}[${name}]`)
+    .join(" + ");
+  attrs[
+    "strife_formula"
+  ] = `{{roll=[[{${dieFormula}}k1 + @{strife_level}[${getTranslation(
+    "strife_level"
+  )}]]]}} {{harm=${harmType}}}`;
+}
+
+function handleStrifeRoll() {
+  getSetRepeating(
+    [...kHarms, "divine_wrath"],
+    {
+      strifedie: ["strifedie_name", "strifedie_size"],
+    },
+    calcStrifeRoll
+  );
+}
+
+registerSingle(
   kPathosGivesTwoDiceField,
-  function () {
-    getSetAttrs([kPathosGivesTwoDiceField], setupDomainQueries);
-  },
+  setupDomainQueries,
   "Handle giving two dice for extra domain"
 );
 
-register(
+registerSingle(
   kExtraEpithetField,
-  function () {
-    getSetAttrs([kExtraEpithetField], setEpithetQuery);
-  },
+  setupEpithetQuery,
   "Handle adding or removing an extra epithet"
 );
 
-register(
+registerSingle(
   kSpendDivineFavorBoon,
-  function () {
-    getSetAttrs([kSpendDivineFavorBoon], setupDivineFavorQuery);
-  },
+  setupDivineFavorQuery,
   "Handle boon for getting +2d4 on spending divine favor"
-)
+);
+
+register(
+  [...kHarms, "divine_wrath", "repeating_strifedie"],
+  handleStrifeRoll,
+  "Handle strife player roll"
+);
+on("remove:repeating_strifedie", handleStrifeRoll);
 
 registerOpened(function () {
-  getSetAttrs(
-    [kExtraEpithetField, kPathosGivesTwoDiceField, kSpendDivineFavorBoon, "version"],
-    function (attrs, setter) {
-      if (!attrs["version"]) performFirstTimeSetup(attrs, setter);
-
-      setter.setAttrs({
-        advantage_bond_support_translated: getTranslation(
-          "advantage_bond_support"
-        ),
-        bonusdice_query: query("bonusdice_query", [0]),
-        target_query: query("target_number", [0]),
-        version: kSheetVersion,
-      });
-      setEpithetQuery(attrs);
-      setupDomainQueries(attrs);
-      setupDivineFavorQuery(attrs);
+  getSetAttrs(["version"], function (attrs, setter) {
+    if (!attrs["version"]) performFirstTimeSetup(attrs);
+    if (attrs["version"] == "1.0") {
+      attrs["sheet_type"] = "character";
     }
-  );
+
+    setter.setAttrs({
+      advantage_bond_support_translated: getTranslation(
+        "advantage_bond_support"
+      ),
+      bonusdice_query: query("bonusdice_query", [0]),
+      target_query: query("target_number", [0]),
+      version: kSheetVersion,
+    });
+  });
 }, "Handle setting default attributes when opening the sheet");
+
+registerButton("choose_character", () =>
+  getSetAttrs([], (attrs) => {
+    attrs["sheet_type"] = "character";
+  })
+);
+registerButton("choose_strife", () =>
+  getSetAttrs([], (attrs) => {
+    attrs["sheet_type"] = "strife";
+  })
+);

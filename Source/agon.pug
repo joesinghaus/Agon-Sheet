@@ -17,18 +17,23 @@ div
   +hidden-input("resolve_spirit_extra_domain_query")(value="?{Add another Domain (spend Pathos)|No, |Arts & Oration, + @{arts_oration_die}[Arts & Oration]|Blood & Valor, + @{blood_valor_die}[Blood & Valor]|Craft & Reason, + @{craft_reason_die}[Craft & Reason]}")
   +hidden-input("resolve_spirit_translated")(value=locals.translation["resolve_spirit"])
   +hidden-input("target_query")(value="?{Target Number|0}")
+  +hidden-input("domain_query")(value="?{Domain|@{arts_oration_label},arts_oration|@{blood_valor_label},blood_valor|@{craft_reason_label},craft_reason|@{resolve_spirit_label},resolve_spirit|Any domain,any}")
+  +hidden-input("strife_formula")(value="{{roll=[[{d8[Name] + d8[Epithet]}k1 + @{strife_level}[Strife Level]]]}} {{harm=}}")
 
 //- Actual sheet
 .container
-  //- Version info & settings
+  +hidden-input("sheet_type")(value="").sheet-type
+  .sheet-type-selector
+    .title(data-i18n="choose_sheet_type")
+    .content
+      button(type="action", name="act_choose_character", data-i18n="character")
+      button(type="action", name="act_choose_strife", data-i18n="strife")
   .sheet-type-character
     include pug/character.pug
+  .sheet-type-strife
+    include pug/strife.pug
 
-//- Force a line break for clean diffs
-|
-|
 include pug/rolltemplate.pug
-|
-|
+
 script(type='text/worker')
   != locals.workers
