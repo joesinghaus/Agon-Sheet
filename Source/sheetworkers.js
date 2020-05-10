@@ -85,9 +85,24 @@ function getSetAttrs(attrs, callback, finalCallback) {
   });
 }
 
+function collectSectionAttrs(attrs, sectionToIds, sections) {
+  const repeating = {};
+  for (const [sectionName, sectionAttrs] of Object.entries(sections)) {
+    repeating[sectionName] = sectionToIds[sectionName].map((id) => {
+      const row = {id};
+      for (const attr of sectionAttrs) {
+        row[attr] = attrs[`repeating_${sectionName}_${id}_${attr}`];
+      }
+      return row;
+    });
+  }
+  return repeating;
+}
+
 function getSetRepeating(attrs, sections, callback, finalCallback) {
-  function getSetRepeatingImpl(attrs, sections, sectionToIds) {
-    for (const [sectionName, sectionAttrs] of Object.entries(sections)) {
+  function getSetRepeatingInternal(attrs, runningSections, sectionToIds) {
+    // Iterates over sections, recursively calling itself in the callback.
+    for (const [sectionName, sectionAttrs] of Object.entries(runningSections)) {
       getSectionIDs(`repeating_${sectionName}`, (idArray) => {
         sectionToIds[sectionName] = idArray;
         for (const id of idArray) {
@@ -95,19 +110,23 @@ function getSetRepeating(attrs, sections, callback, finalCallback) {
             attrs.push(`repeating_${sectionName}_${id}_${attr}`);
           }
         }
-        delete sections[sectionName];
-        getSetRepeatingImpl(attrs, sections, sectionToIds);
+        delete runningSections[sectionName];
+        getSetRepeatingInternal(attrs, runningSections, sectionToIds);
       });
       return; // Run the loop body at most once.
     }
-    getSetAttrs(
-      attrs,
-      (proxy, setter) => callback(proxy, sectionToIds, setter),
-      finalCallback
-    );
+
+    // Wrap the original callback in a helper that populates section attributes.
+    const boundCallback = (attrs, setter) =>
+      callback(
+        attrs,
+        collectSectionAttrs(attrs, sectionToIds, sections),
+        setter
+      );
+    getSetAttrs(attrs, boundCallback, finalCallback);
   }
   // Copies the attrs and sections arguments so we can happily modify them in the function.
-  getSetRepeatingImpl([...attrs], JSON.parse(JSON.stringify(sections)), {});
+  getSetRepeatingInternal([...attrs], JSON.parse(JSON.stringify(sections)), {});
 }
 
 // We define our own wrappers for Roll20 event handlers to provide
@@ -330,14 +349,14 @@ function setupDivineFavorQuery(attrs) {
   }
 }
 
-function calcStrifeRoll(attrs, sectionToIds) {
+function calcStrifeRoll(attrs, repeating) {
   const harmType = kHarms
     .filter((harm) => attrs[harm] == "1")
     .map((x) => `@{${x}_label}`)
     .join(", ");
-  const dieSources = sectionToIds["strifedie"].map((id) => [
-    attrs[`repeating_strifedie_${id}_strifedie_name`],
-    attrs[`repeating_strifedie_${id}_strifedie_size`],
+  const dieSources = repeating.strifedie.map((row) => [
+    row.strifedie_name,
+    row.strifedie_size,
   ]);
   if (attrs["divine_wrath"] !== "0") {
     dieSources.push(["@{divine_wrath_label}", "@{divine_wrath}"]);
