@@ -13,16 +13,16 @@ function query(question, options) {
 
 function fillRepeatingSectionFromData(sectionName, dataList, attrs) {
   const createdIDs = [];
-  for (let entry of dataList) {
+  for (const entry of dataList) {
     let rowID;
     while (!rowID) {
-      let newID = generateRowID();
+      const newID = generateRowID();
       if (!createdIDs.includes(newID)) {
         rowID = newID;
         createdIDs.push(rowID);
       }
     }
-    for (let [key, value] of Object.entries(entry)) {
+    for (const [key, value] of Object.entries(entry)) {
       attrs[`repeating_${sectionName}_${rowID}_${key}`] = value;
     }
   }
@@ -51,7 +51,7 @@ class AttributeSetter {
     this._targetAttrs[name] = value;
   }
   setAttrs(values) {
-    for (let [key, value] of Object.entries(values)) {
+    for (const [key, value] of Object.entries(values)) {
       this.setAttr(key, value);
     }
   }
@@ -61,7 +61,7 @@ class AttributeSetter {
   finalize(callback) {
     getAttrs(Object.keys(this._targetAttrs), (values) => {
       const finalAttrs = {};
-      for (let [key, value] of Object.entries(this._targetAttrs)) {
+      for (const [key, value] of Object.entries(this._targetAttrs)) {
         if (String(value) !== values[key]) finalAttrs[key] = String(value);
       }
       setAttrs(finalAttrs, { silent: true }, callback);
@@ -86,7 +86,7 @@ function getSetAttrs(attrs, callback, finalCallback) {
 }
 
 function getSetRepeating(attrs, sections, callback, finalCallback) {
-  function getSetRepeatingImpl(attrs, sections, sectionToIds, callback) {
+  function getSetRepeatingImpl(attrs, sections, sectionToIds) {
     for (const [sectionName, sectionAttrs] of Object.entries(sections)) {
       getSectionIDs(`repeating_${sectionName}`, (idArray) => {
         sectionToIds[sectionName] = idArray;
@@ -96,29 +96,18 @@ function getSetRepeating(attrs, sections, callback, finalCallback) {
           }
         }
         delete sections[sectionName];
-        getSetRepeatingImpl(
-          attrs,
-          sections,
-          sectionToIds,
-          callback,
-          finalCallback
-        );
+        getSetRepeatingImpl(attrs, sections, sectionToIds);
       });
       return; // Run the loop body at most once.
     }
-    getAttrs(attrs, (values) => {
-      const setter = new AttributeSetter(values);
-      callback(new Proxy(setter, attributeHandler), sectionToIds, setter);
-      setter.finalize(finalCallback);
-    });
+    getSetAttrs(
+      attrs,
+      (proxy, setter) => callback(proxy, sectionToIds, setter),
+      finalCallback
+    );
   }
   // Copies the attrs and sections arguments so we can happily modify them in the function.
-  getSetRepeatingImpl(
-    [...attrs],
-    JSON.parse(JSON.stringify(sections)),
-    {},
-    callback
-  );
+  getSetRepeatingImpl([...attrs], JSON.parse(JSON.stringify(sections)), {});
 }
 
 // We define our own wrappers for Roll20 event handlers to provide
@@ -283,7 +272,7 @@ function performFirstTimeSetup(attrs) {
   fillEmptyRows("deeds", 4, attrs);
   fillEmptyRows("destiny", 2, attrs);
   fillRepeatingSectionFromData("strifedie", kInitialStrifeDice, attrs);
-  for (let name of kLabelAttributes) {
+  for (const name of kLabelAttributes) {
     attrs[`${name}_label`] = getTranslation(name);
   }
 }
@@ -308,7 +297,7 @@ function setupEpithetQuery(attrs) {
 
 function setupDomainQueries(attrs) {
   const multiplier = attrs[kPathosGivesTwoDiceField] === "1" ? "2" : "";
-  for (let domain of kDomains) {
+  for (const domain of kDomains) {
     const query_entries = [
       `${getTranslation("no")}, `,
       ...kDomains
