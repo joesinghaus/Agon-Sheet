@@ -11,7 +11,7 @@ function query(question, options) {
   return `?{${getTranslation(question)}|${options.join("|")}}`;
 }
 
-function fillRepeatingSectionFromData(sectionName, dataList, attrs) {
+function fillRepeatingSectionFromData(sectionName, dataList, setter) {
   const createdIDs = [];
   for (const entry of dataList) {
     let rowID;
@@ -22,31 +22,73 @@ function fillRepeatingSectionFromData(sectionName, dataList, attrs) {
         createdIDs.push(rowID);
       }
     }
+    const row = setter.addRepeatingRow(sectionName, rowID);
     for (const [key, value] of Object.entries(entry)) {
-      attrs[`repeating_${sectionName}_${rowID}_${key}`] = value;
+      row[key] = value;
     }
   }
 }
 
-function fillEmptyRows(sectionName, n, attrs) {
+function fillEmptyRows(sectionName, n, setter) {
   const data = [...Array(n).keys()].map(() => ({ autogen: "1" }));
-  fillRepeatingSectionFromData(sectionName, data, attrs);
+  fillRepeatingSectionFromData(sectionName, data, setter);
 }
 
-// Convenience function that wraps Roll20 functions. Callback will be called with
-// an attribute setter proxy, which allows us to get and set function values using
-// object syntax. Optionally, a second argument is the setter itself, in order to
-// set values en masse.
-// Usage:
-// getSetAttrs(["foo", "bar"], (attrs, setter) => {
-//   attrs["baz"] = attrs["foo"] + attrs["bar"];
-//})
-class AttributeSetter {
-  constructor(attrs) {
-    this._sourceAttrs = attrs;
-    this._targetAttrs = {};
+const attributeHandler = {
+  get: function (target, name) {
+    return target.getAttr(name);
+  },
+  set: function (target, name, value) {
+    target.setAttr(name, value);
+    return true;
+  },
+};
+
+class RepeatingRow {
+  constructor(setter, sectionName, id) {
+    this._setter = setter;
+    if (id) this._prefix = `repeating_${sectionName}_${id}`;
+    else this._prefix = `repeating_${sectionName}`;
+    this._id = id;
+  }
+  fullName(attrName) {
+    return `${this._prefix}_${attrName}`;
   }
   setAttr(name, value) {
+    return this._setter.setAttr(this.fullName(name), value);
+  }
+  getAttr(name) {
+    if (name == "id") return this._id;
+    return this._setter.getAttr(this.fullName(name));
+  }
+  proxy() {
+    return new Proxy(this, attributeHandler);
+  }
+}
+
+const withDefaultArray = {
+  get: function (target, name) {
+    if (!target[name]) target[name] = [];
+    return target[name];
+  },
+};
+
+class AttributeSetter {
+  constructor(attrs, sectionToIds = {}) {
+    this._sourceAttrs = attrs;
+    this._targetAttrs = {};
+    this._repeating = new Proxy({}, withDefaultArray);
+    for (const [sectionName, sectionIds] of Object.entries(sectionToIds)) {
+      this._repeating[sectionName] = sectionIds.map((id) =>
+        new RepeatingRow(this, sectionName, id).proxy()
+      );
+      console.log(this._repeating);
+    }
+  }
+  setAttr(name, value) {
+    if (name == "repeating") {
+      throw new Error("Tried to modify the 'repeating' attribute.");
+    }
     this._sourceAttrs[name] = value;
     this._targetAttrs[name] = value;
   }
@@ -56,7 +98,17 @@ class AttributeSetter {
     }
   }
   getAttr(name) {
+    if (name == "repeating") return this._repeating;
     return this._sourceAttrs[name];
+  }
+  proxy() {
+    return new Proxy(this, attributeHandler);
+  }
+  addRepeatingRow(sectionName, id) {
+    id = id || generateRowID();
+    const row = new RepeatingRow(this, sectionName, id).proxy();
+    this._repeating[sectionName].push(row);
+    return row;
   }
   finalize(callback) {
     getAttrs(Object.keys(this._targetAttrs), (values) => {
@@ -68,65 +120,38 @@ class AttributeSetter {
     });
   }
 }
-const attributeHandler = {
-  get: function (target, name) {
-    return target.getAttr(name);
-  },
-  set: function (target, name, value) {
-    target.setAttr(name, value);
-    return true;
-  },
-};
-function getSetAttrs(attrs, callback, finalCallback) {
-  getAttrs(attrs, (values) => {
-    const setter = new AttributeSetter(values);
-    callback(new Proxy(setter, attributeHandler), setter);
-    setter.finalize(finalCallback);
-  });
-}
 
-function collectSectionAttrs(attrs, sectionToIds, sections) {
-  const repeating = {};
-  for (const [sectionName, sectionAttrs] of Object.entries(sections)) {
-    repeating[sectionName] = sectionToIds[sectionName].map((id) => {
-      const row = {id};
-      for (const attr of sectionAttrs) {
-        row[attr] = attrs[`repeating_${sectionName}_${id}_${attr}`];
+// Convenience function that wraps Roll20 functions. Callback will be called with
+// an attribute setter proxy, which allows us to get and set function values using
+// object syntax. Optionally, a second argument is the setter itself, in order to
+// set values en masse.
+// Usage:
+// getSetAttrs(["foo", "bar"], (attrs, setter) => {
+//   attrs["baz"] = attrs["foo"] + attrs["bar"];
+//})
+function getSetAttrs(attrs, callback, { repeating = {}, finalCallback } = {}) {
+  attrs = [...attrs];
+  const sectionToIds = {};
+
+  const finished = _.after(Object.keys(repeating).length + 1, () => {
+    getAttrs(attrs, (values) => {
+      const setter = new AttributeSetter(values, sectionToIds);
+      callback(setter.proxy(), setter);
+      setter.finalize(finalCallback);
+    });
+  });
+  for (const [sectionName, sectionAttrs] of Object.entries(repeating)) {
+    getSectionIDs(`repeating_${sectionName}`, (idArray) => {
+      sectionToIds[sectionName] = idArray;
+      for (const id of idArray) {
+        for (const attr of sectionAttrs) {
+          attrs.push(`repeating_${sectionName}_${id}_${attr}`);
+        }
       }
-      return row;
+      finished();
     });
   }
-  return repeating;
-}
-
-function getSetRepeating(attrs, sections, callback, finalCallback) {
-  function getSetRepeatingInternal(attrs, runningSections, sectionToIds) {
-    // Iterates over sections, recursively calling itself in the callback.
-    for (const [sectionName, sectionAttrs] of Object.entries(runningSections)) {
-      getSectionIDs(`repeating_${sectionName}`, (idArray) => {
-        sectionToIds[sectionName] = idArray;
-        for (const id of idArray) {
-          for (const attr of sectionAttrs) {
-            attrs.push(`repeating_${sectionName}_${id}_${attr}`);
-          }
-        }
-        delete runningSections[sectionName];
-        getSetRepeatingInternal(attrs, runningSections, sectionToIds);
-      });
-      return; // Run the loop body at most once.
-    }
-
-    // Wrap the original callback in a helper that populates section attributes.
-    const boundCallback = (attrs, setter) =>
-      callback(
-        attrs,
-        collectSectionAttrs(attrs, sectionToIds, sections),
-        setter
-      );
-    getSetAttrs(attrs, boundCallback, finalCallback);
-  }
-  // Copies the attrs and sections arguments so we can happily modify them in the function.
-  getSetRepeatingInternal([...attrs], JSON.parse(JSON.stringify(sections)), {});
+  finished();
 }
 
 // We define our own wrappers for Roll20 event handlers to provide
@@ -286,11 +311,11 @@ const kLabelAttributes = [
   "sacred",
 ];
 
-function performFirstTimeSetup(attrs) {
-  fillEmptyRows("bonds", 8, attrs);
-  fillEmptyRows("deeds", 4, attrs);
-  fillEmptyRows("destiny", 2, attrs);
-  fillRepeatingSectionFromData("strifedie", kInitialStrifeDice, attrs);
+function performFirstTimeSetup(attrs, setter) {
+  fillEmptyRows("bonds", 8, setter);
+  fillEmptyRows("deeds", 4, setter);
+  fillEmptyRows("destiny", 6, setter);
+  fillRepeatingSectionFromData("strifedie", kInitialStrifeDice, setter);
   for (const name of kLabelAttributes) {
     attrs[`${name}_label`] = getTranslation(name);
   }
@@ -349,12 +374,12 @@ function setupDivineFavorQuery(attrs) {
   }
 }
 
-function calcStrifeRoll(attrs, repeating) {
+function calcStrifeRoll(attrs) {
   const harmType = kHarms
     .filter((harm) => attrs[harm] == "1")
     .map((x) => `@{${x}_label}`)
     .join(", ");
-  const dieSources = repeating.strifedie.map((row) => [
+  const dieSources = attrs.repeating.strifedie.map((row) => [
     row.strifedie_name,
     row.strifedie_size,
   ]);
@@ -372,13 +397,11 @@ function calcStrifeRoll(attrs, repeating) {
 }
 
 function handleStrifeRoll() {
-  getSetRepeating(
-    [...kHarms, "divine_wrath"],
-    {
+  getSetAttrs([...kHarms, "divine_wrath"], calcStrifeRoll, {
+    repeating: {
       strifedie: ["strifedie_name", "strifedie_size"],
     },
-    calcStrifeRoll
-  );
+  });
 }
 
 registerSingle(
@@ -408,7 +431,7 @@ on("remove:repeating_strifedie", handleStrifeRoll);
 
 registerOpened(function () {
   getSetAttrs(["version"], function (attrs, setter) {
-    if (!attrs["version"]) performFirstTimeSetup(attrs);
+    if (!attrs["version"]) performFirstTimeSetup(attrs, setter);
     if (attrs["version"] == "1.0") {
       attrs["sheet_type"] = "character";
     }
