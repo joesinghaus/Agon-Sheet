@@ -33,7 +33,7 @@
   .strife-level
     +text-input("plus_strife_level_label")(value=locals.translation["plus_strife_level"]).title
     .checks
-      each level in ["4", "5", "6"]
+      each level in ["0", "4", "5", "6"]
         label
           input(name="attr_strife_level", type="radio", value=level, checked=(level=="5"))
           span=`+${level}`

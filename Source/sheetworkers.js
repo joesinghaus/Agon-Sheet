@@ -66,23 +66,22 @@ class RepeatingRow {
   }
 }
 
-const withDefaultArray = {
-  get: function (target, name) {
-    if (!target[name]) target[name] = [];
-    return target[name];
-  },
-};
-
 class AttributeSetter {
   constructor(attrs, sectionToIds = {}) {
     this._sourceAttrs = attrs;
     this._targetAttrs = {};
-    this._repeating = new Proxy({}, withDefaultArray);
+    
+    this._repeating = new Proxy({}, {
+      get: function (target, name) {
+        if (!target[name]) target[name] = [];
+        return target[name];
+      },
+    });
+
     for (const [sectionName, sectionIds] of Object.entries(sectionToIds)) {
       this._repeating[sectionName] = sectionIds.map((id) =>
         new RepeatingRow(this, sectionName, id).proxy()
       );
-      console.log(this._repeating);
     }
   }
   setAttr(name, value) {
@@ -121,14 +120,6 @@ class AttributeSetter {
   }
 }
 
-// Convenience function that wraps Roll20 functions. Callback will be called with
-// an attribute setter proxy, which allows us to get and set function values using
-// object syntax. Optionally, a second argument is the setter itself, in order to
-// set values en masse.
-// Usage:
-// getSetAttrs(["foo", "bar"], (attrs, setter) => {
-//   attrs["baz"] = attrs["foo"] + attrs["bar"];
-//})
 function getSetAttrs(attrs, callback, { repeating = {}, finalCallback } = {}) {
   attrs = [...attrs];
   const sectionToIds = {};
