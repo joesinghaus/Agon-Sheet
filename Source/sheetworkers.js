@@ -189,6 +189,7 @@ const kExtraEpithetField = "boons_4_check_1";
 const kPathosGivesTwoDiceField = "boons_6_check_1";
 const kSpendDivineFavorBoon = "boons_7_check_1";
 const kHarms = ["epic", "mythic", "perilous", "sacred"];
+const kSrifeDiceLength = 12;
 const kDomains = [
   "arts_oration",
   "blood_valor",
@@ -365,6 +366,34 @@ function setupDivineFavorQuery(attrs) {
   }
 }
 
+
+function calcStrifeRoll(id, attrs) {
+  const pre = `repeating_island_${id}_`;
+  const dieSources = [];
+  for(let i=1; i<= kSrifeDiceLength; i++) {
+    if(attrs[`${pre}strifedie_enabled_${i}`] && attrs[`${pre}strifedie_enabled_${i}`] == 1 && attrs[`${pre}strifedie_name_${i}`]) {
+      const harms = [];
+      kHarms.forEach(harm => {
+        if(attrs[`${pre}${harm}_${i}`] && attrs[`${pre}${harm}_${i}`] == 1) {
+          harms.push(harm);
+        }
+      });
+      dieSources.push([attrs[`${pre}strifedie_name_${i}`],  attrs[`${pre}strifedie_size_${i}`], harms]);
+    }
+  }
+  if (attrs["divine_wrath"] !== "0") {
+    dieSources.push(["@{divine_wrath_label}", "@{divine_wrath}"]);
+  }
+  const dieFormula = dieSources
+    .map(([name, die, harms]) => `${die}[${[name, ...harms].join(', ')}]`)
+    .join(" + ");
+  const update = {}
+  update[`${pre}strife_formula`] = `{{roll=[[{${dieFormula}}k1 + @{strife_level}[${getTranslation(
+    "strife_level"
+  )}]]]}}`;
+  setAttrs(update);
+}
+/*
 function calcStrifeRoll(attrs) {
   const harmType = kHarms
     .filter((harm) => attrs[harm] == "1")
@@ -385,15 +414,39 @@ function calcStrifeRoll(attrs) {
   ] = `{{roll=[[{${dieFormula}}k1 + @{strife_level}[${getTranslation(
     "strife_level"
   )}]]]}} {{harm=${harmType}}}`;
-}
+}*/
 
-function handleStrifeRoll() {
+function getStrifeDiceAttributes(pre = "") {
+  let attributes = [];
+  for(let i=1; i<= kSrifeDiceLength; i++) {
+    attributes.push(`${pre}strifedie_enabled_${i}`);
+    attributes.push(`${pre}strifedie_name_${i}`);
+    attributes.push(`${pre}strifedie_size_${i}`);
+    kHarms.forEach(harm => {
+      attributes.push(`${pre}${harm}_${i}`);
+    });
+  }
+  return attributes;
+}
+//TODO: Perform refactoring to use Jacobs wrappers
+function handleStrifeRoll(attrs) {
+  const regexp = /-.{19}(?=_)|-.{19}$/g;
+  const match = attrs.triggerName.match(regexp);
+  const id = match.join();
+  const pre = `repeating_island_${id}_`;
+  const harms = getStrifeDiceAttributes(pre);
+  getAttrs([...harms, "divine_wrath"], values => {
+    calcStrifeRoll(id, values);
+  });
+}
+/*
+function handleStrifeRoll(id) {
   getSetAttrs([...kHarms, "divine_wrath"], calcStrifeRoll, {
     repeating: {
       strifedie: ["strifedie_name", "strifedie_size"],
     },
   });
-}
+}*/
 
 registerSingle(
   kPathosGivesTwoDiceField,
@@ -414,11 +467,13 @@ registerSingle(
 );
 
 register(
-  [...kHarms, "divine_wrath", "repeating_strifedie"],
+  ["repeating_island"],
   handleStrifeRoll,
   "Handle strife player roll"
 );
-on("remove:repeating_strifedie", handleStrifeRoll);
+
+//Removing as we don't have those and intead
+//on("remove:repeating_strifedie", handleStrifeRoll);
 
 registerOpened(function () {
   getSetAttrs(["version"], function (attrs, setter) {
@@ -446,5 +501,10 @@ registerButton("choose_character", () =>
 registerButton("choose_strife", () =>
   getSetAttrs([], (attrs) => {
     attrs["sheet_type"] = "strife";
+  })
+);
+registerButton("choose_island", () =>
+  getSetAttrs([], (attrs) => {
+    attrs["sheet_type"] = "island";
   })
 );

@@ -18,7 +18,6 @@ div
   +hidden-input("resolve_spirit_translated")(value=locals.translation["resolve_spirit"])
   +hidden-input("target_query")(value="?{Target Number|0}")
   +hidden-input("domain_query")(value="?{Domain|@{arts_oration_label},arts_oration|@{blood_valor_label},blood_valor|@{craft_reason_label},craft_reason|@{resolve_spirit_label},resolve_spirit|Any domain,any}")
-  +hidden-input("strife_formula")(value="{{roll=[[{d8[Name] + d8[Epithet]}k1 + @{strife_level}[Strife Level]]]}} {{harm=}}")
 
 //- Actual sheet
 .container
@@ -28,10 +27,13 @@ div
     .content
       button(type="action", name="act_choose_character", data-i18n="character")
       button(type="action", name="act_choose_strife", data-i18n="strife")
+      button(type="action", name="act_choose_island", data-i18n="island")
   .sheet-type-character
     include pug/character.pug
   .sheet-type-strife
     include pug/strife.pug
+  .sheet-type-island
+    include pug/island.pug
 
 include pug/rolltemplate.pug
 

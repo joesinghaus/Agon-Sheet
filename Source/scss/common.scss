@@ -453,7 +453,8 @@ input.sheet-zero {
 
 .sheet-type:not([value=""]) ~ .sheet-type-selector,
 .sheet-type:not([value="character"]) ~ .sheet-type-character,
-.sheet-type:not([value="strife"]) ~ .sheet-type-strife {
+.sheet-type:not([value="strife"]) ~ .sheet-type-strife,
+.sheet-type:not([value="island"]) ~ .sheet-type-island {
   display: none;
 }
 
@@ -471,7 +472,7 @@ input.sheet-zero {
   .sheet-content {
     display: grid;
     @include title-text;
-    grid-template: auto / 1fr 1fr;
+    grid-template: auto / 1fr 1fr 1fr;
   }
   button[type="action"] {
     font-size: 14px;
