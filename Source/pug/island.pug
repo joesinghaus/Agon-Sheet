@@ -1,4 +1,4 @@
-.roller
+.stats
   .divine-wrath
     +text-input("divine_wrath_label")(value=locals.translation["divine_wrath"]).title
     .checks
@@ -13,32 +13,38 @@
         label
           input(name="attr_strife_level", type="radio", value=level, checked=(level=="5"))
           span=`+${level}`
+
+mixin strife(i)
+  .enabled
+    +checkbox(`strifedie_enabled_${i+1}`).squarebox
+  +text-input(`strifedie_name_${i+1}`)(data-i18n-placeholder="die_placeholder")
+  .harm
+    each harm in ["epic", "mythic", "perilous", "sacred"]
+      .harmbox
+        +text-input(`${harm}_label_${i+1}`)(value=locals.translation[harm]).title
+        +checkbox(`${harm}_${i+1}`).squarebox
+  +die-select(`strifedie_size_${i+1}`, ["d6", "d8", "d10", "d12"], "d8")
+
 fieldset.repeating_island
   +hidden-input("strife_formula")(value="{{roll=[[{d8[Name] + d8[Epithet]}k1 + @{strife_level}[Strife Level]]]}} {{harm=}}")
+  input.edit-dice(type="checkbox" name="attr_edit_strife" value="editing")
+  span(data-i18n="edit_strife_dice")
   .roller
-    button(
-      class="strife-button"
-      name="roll_strife",
-      type="roll",
-      data-i18n="roll_strife"
-      value="&{template:agon-strife} @{strife_formula} {{type=@{domain_query}}}"
-    )
     .dice
-      input.edit-dice(type="checkbox" name="attr_edit_strife" value="editing")
-      span(data-i18n="edit_strife_dice")
       .strife-dice
         each _, i in Array(12)
           +hidden-input(`strifedie_name_${i+1}`).strifedie-name
-          //shown-by-default
           if i > 4
             .strifedie
+              +strife(i)
           else
             .strifedie.default
-            +checkbox(`strifedie_enabled_${i+1}`).squarebox
-            +text-input(`strifedie_name_${i+1}`)(data-i18n-placeholder="die_placeholder")
-            .harm
-              each harm in ["epic", "mythic", "perilous", "sacred"]
-                .harmbox
-                  +text-input(`${harm}_label_${i+1}`)(value=locals.translation[harm]).title
-                  +checkbox(`${harm}_${i+1}`).squarebox
-            +die-select(`strifedie_size_${i+1}`, ["d6", "d8", "d10", "d12"], "d8") 
+              +strife(i)
+    .roll
+      button(
+        class="strife-button"
+        name="roll_strife",
+        type="roll",
+        data-i18n="roll_strife"
+        value="&{template:agon-strife} @{strife_formula} {{type=@{domain_query}}}"
+      )
