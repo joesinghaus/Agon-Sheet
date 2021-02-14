@@ -95,7 +95,8 @@
         text-transform: uppercase;
       }
     }
-    .sheet-strifedie:not(:first-of-type) {
+
+    .sheet-strifedie:not(.sheet-default) {
       display: none;
       margin-top: 5px;
       opacity: 0.5;

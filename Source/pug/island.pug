@@ -29,7 +29,11 @@ fieldset.repeating_island
       .strife-dice
         each _, i in Array(12)
           +hidden-input(`strifedie_name_${i+1}`).strifedie-name
-          .strifedie
+          //shown-by-default
+          if i > 4
+            .strifedie
+          else
+            .strifedie.default
             +checkbox(`strifedie_enabled_${i+1}`).squarebox
             +text-input(`strifedie_name_${i+1}`)(data-i18n-placeholder="die_placeholder")
             .harm

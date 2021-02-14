@@ -370,27 +370,28 @@ function setupDivineFavorQuery(attrs) {
 function calcStrifeRoll(id, attrs) {
   const pre = `repeating_island_${id}_`;
   const dieSources = [];
+  const harms = []
   for(let i=1; i<= kSrifeDiceLength; i++) {
     if(attrs[`${pre}strifedie_enabled_${i}`] && attrs[`${pre}strifedie_enabled_${i}`] == 1 && attrs[`${pre}strifedie_name_${i}`]) {
-      const harms = [];
       kHarms.forEach(harm => {
         if(attrs[`${pre}${harm}_${i}`] && attrs[`${pre}${harm}_${i}`] == 1) {
           harms.push(harm);
         }
       });
-      dieSources.push([attrs[`${pre}strifedie_name_${i}`],  attrs[`${pre}strifedie_size_${i}`], harms]);
+      dieSources.push([attrs[`${pre}strifedie_name_${i}`],  attrs[`${pre}strifedie_size_${i}`]]);
     }
   }
   if (attrs["divine_wrath"] !== "0") {
     dieSources.push(["@{divine_wrath_label}", "@{divine_wrath}"]);
   }
   const dieFormula = dieSources
-    .map(([name, die, harms]) => `${die}[${[name, ...harms].join(', ')}]`)
+    .map(([name, die]) => `${die}[${name}]`)
     .join(" + ");
   const update = {}
+  const harmType = Array.from(new Set(harms)).sort();
   update[`${pre}strife_formula`] = `{{roll=[[{${dieFormula}}k1 + @{strife_level}[${getTranslation(
     "strife_level"
-  )}]]]}}`;
+  )}]]]}} {{harm=${harmType}}}`;
   setAttrs(update);
 }
 /*
