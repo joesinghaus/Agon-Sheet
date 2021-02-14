@@ -1,5 +1,12 @@
 .sheet-type-island {
   margin-right: 25px;
+  .sheet-title {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-family: "Della Respira", serif;
+    padding-left: 2px;
+    margin-bottom: 5px;
+  }
 }
 .sheet-stats {
   display: grid;
@@ -106,25 +113,15 @@
       }
       &:not(.sheet-default) {
         display: none;
-        margin-top: 5px;
-        opacity: 0.5;
       }
     }
-    .sheet-strife-dice .sheet-strifedie-name[value]:not([value=""]) + .sheet-strifedie {
+    .sheet-strife-dice .sheet-strifedie-name[value]:not([value=""]) + .sheet-strifedie, 
+    .sheet-strife-dice .sheet-strifedie-name[value]:not([value=""]) + .sheet-strifedie + .sheet-strifedie-name + .sheet-strifedie {
       display: grid;
       opacity: 1;
     }
   }
 }
-
-.sheet-edit-dice {
-  opacity: 1.0!important;
-  + span {
-    font-size: 12px;
-    font-family: "Della Respira", serif;
-    text-transform: uppercase;
-  }
-}
-.sheet-edit-dice:checked ~ .sheet-roller .sheet-strife-dice .sheet-strifedie {
-  display: grid;
+.sheet-cnotes {
+  margin-top: 10px;
 }

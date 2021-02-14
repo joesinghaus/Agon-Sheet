@@ -27,8 +27,7 @@ mixin strife(i)
 
 fieldset.repeating_island
   +hidden-input("strife_formula")(value="{{roll=[[{d8[Name] + d8[Epithet]}k1 + @{strife_level}[Strife Level]]]}} {{harm=}}")
-  input.edit-dice(type="checkbox" name="attr_edit_strife" value="editing")
-  span(data-i18n="edit_strife_dice")
+  //+text-input("great_deeds_and_trophies_label")(value=locals.translation["great_deeds_and_trophies"]).title
   .roller
     .dice
       .strife-dice
@@ -48,3 +47,6 @@ fieldset.repeating_island
         data-i18n="roll_strife"
         value="&{template:agon-strife} @{strife_formula} {{type=@{domain_query}}}"
       )
+  .cnotes
+    //+text-input("great_deeds_and_trophies_label")(value=locals.translation["great_deeds_and_trophies"]).title
+    +autoexpand("style_notes")(data-i18n-placeholder="notes").notes
