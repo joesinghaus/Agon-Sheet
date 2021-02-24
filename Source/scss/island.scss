@@ -7,6 +7,9 @@
     padding-left: 2px;
     margin-bottom: 5px;
   }
+  .repcontainer .repitem:not(:first-child) {
+    margin-top: 40px;
+  }
 }
 .sheet-stats {
   display: grid;
