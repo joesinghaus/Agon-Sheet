@@ -1,4 +1,6 @@
 .stats
+  .island-name
+    +text-input('character_name')(data-i18n-placeholder="island_name")
   .divine-wrath
     +text-input("divine_wrath_label")(value=locals.translation["divine_wrath"]).title
     .checks
@@ -16,7 +18,10 @@
 
 mixin strife(i)
   .enabled
-    +checkbox(`strifedie_enabled_${i+1}`).squarebox
+    if(i == 0)
+      +checkbox(`strifedie_enabled_${i+1}`)(checked).squarebox
+    else
+      +checkbox(`strifedie_enabled_${i+1}`).squarebox
   +text-input(`strifedie_name_${i+1}`)(data-i18n-placeholder="die_placeholder")
   .harm
     each harm in ["epic", "mythic", "perilous", "sacred"]

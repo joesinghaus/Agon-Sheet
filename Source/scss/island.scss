@@ -7,15 +7,27 @@
     padding-left: 2px;
     margin-bottom: 5px;
   }
-  .repcontainer .repitem:not(:first-child) {
-    margin-top: 40px;
+  .repcontainer .repitem {
+    border: none!important;
+    outline: none!important;
+    &:not(:first-child) {
+      margin-top: 40px;
+    }
   }
 }
 .sheet-stats {
   display: grid;
-  grid-template-columns: 200px 200px 1fr;
+  grid-template-columns: 1fr 0.5fr 0.5fr;
   grid-gap: 10px;
   margin-bottom: 20px;
+  align-items: center;
+  .sheet-island-name {
+    text-transform: uppercase;
+    font-size: 20px;
+    font-family: "Della Respira", serif;
+    padding-left: 4px;
+    font-weight: bold;
+  }
   .sheet-divine-wrath {
     .sheet-title {
       @include title-text;

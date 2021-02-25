@@ -509,3 +509,70 @@ registerButton("choose_island", () =>
     attrs["sheet_type"] = "island";
   })
 );
+
+//DRAG & DROP
+on("change:drop_category", function(eventinfo) {
+  if(eventinfo.newValue === "Monsters") { //Change later for Island
+    handleIsland(eventinfo.newValue);
+  }
+});
+
+const handleIsland = (category, eventinfo) => {
+  getAttrs(["drop_name", "drop_data", "drop_content", "character_id"], v => {
+    let pagedata = {};
+      try {
+        pagedata = JSON.parse(v.drop_data);
+      } catch(e) {
+        pagedata = v.drop_data;
+    }
+    let  page = {
+      name: v.drop_name,
+      data: pagedata,
+      content: v.drop_content
+    };
+    let category = page.data["Category"];
+    let chatacters = [];
+    try {
+      chatacters = JSON.parse(pagedata['data-Characters']);
+    } catch(e) {
+      chatacters = [];
+    }
+    let updates = {
+      'sheet_type': 'island'
+    };
+    if(pagedata['Token']) updates['token_src'] = pagedata['Token'];
+    if(pagedata['Token Size']) updates['token_size'] = pagedata['Token Size'];
+    chatacters.forEach(character => {
+      let rowID = generateRowID();
+      for(let i=0; i<character.rolls.length; i++) {
+        updates[`repeating_island_${rowID}_strifedie_name_${i+1}`] = character.rolls[i].name;
+        updates[`repeating_island_${rowID}_strifedie_size_${i+1}`] = character.rolls[i].dice;
+        if(character.rolls[i].harm && Array.isArray(character.rolls[i].harm)) {
+          const harms = ['epic', 'mythic', 'perilous', 'sacred'];
+          character.rolls[i].harm.forEach(type => {
+            type = type.toLowerCase();
+            if(harms.indexOf(type) > -1) {
+              updates[`repeating_island_${rowID}_${type}_${i+1}`] = 1;
+            }
+          });
+        }
+      }
+      if(character.notes) updates[`repeating_island_${rowID}_style_notes`] = character.notes;
+    });
+    setAttrs(updates, () => {
+      console.log('Handling Island Drop')
+    })
+  });
+};
+
+on("sheet:compendium-drop", function() {
+  getAttrs(['token_size', 'token_src'], function(v) {
+    if(v['token_size']) {
+      let token = {};
+      if(v['token_src']) token['imgsrc'] = v['tokensrc'];
+      token['width'] = 70 * parseInt(v['token_size']);
+      token['height'] = 70 * parseInt(v['token_size']);
+      setDefaultToken(token);
+    }
+  });
+});
