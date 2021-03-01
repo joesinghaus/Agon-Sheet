@@ -385,27 +385,27 @@ function handleStrifeRoll() {
 }
 function calcStrifeRoll() {
   getSetAttrs(["divine_wrath"], (attrs) => {
-    console.log(attrs);
-    const dieSources = [];
-    const harms = [];
-    const row = attrs["repeating"]["characters"][0];
-    for(let i=1; i<= kSrifeDiceLength; i++) {
-      if(row[`strifedie_enabled_${i}`] && row[`strifedie_enabled_${i}`] == 1 && row[`strifedie_name_${i}`]) {
-        kHarms.forEach(harm => {
-          if(row[`${harm}_${i}`] && row[`${harm}_${i}`] == 1) {
-            harms.push(harm);
-          }
-        });
-        dieSources.push([row[`strifedie_name_${i}`], row[`strifedie_size_${i}`]]);
+    attrs.repeating.characters.forEach(character => {
+      const dieSources = [];
+      const harms = [];
+      for(let i=1; i<= kSrifeDiceLength; i++) {
+        if(character[`strifedie_enabled_${i}`] && character[`strifedie_enabled_${i}`] == 1 && character[`strifedie_name_${i}`]) {
+          kHarms.forEach(harm => {
+            if(character[`${harm}_${i}`] && character[`${harm}_${i}`] == 1) {
+              harms.push(harm);
+            }
+          });
+          dieSources.push([character[`strifedie_name_${i}`], character[`strifedie_size_${i}`]]);
+        }
       }
-    }
-    if (attrs["divine_wrath"] !== "0") dieSources.push(["@{divine_wrath_label}", "@{divine_wrath}"]);
-    const dieFormula = dieSources
-      .map(([name, die]) => `${die}[${name}]`)
-      .join(" + ");
-    const harmType = Array.from(new Set(harms)).sort();
-    const formula = `{{roll=[[{${dieFormula}}k1 + @{strife_level}[${getTranslation("strife_level")}]]]}} {{harm=${harmType}}}`;
-    row[`strife_formula`] = formula;
+      if (attrs["divine_wrath"] !== "0") dieSources.push(["@{divine_wrath_label}", "@{divine_wrath}"]);
+      const dieFormula = dieSources
+        .map(([name, die]) => `${die}[${name}]`)
+        .join(" + ");
+      const harmType = Array.from(new Set(harms)).sort();
+      const formula = `{{roll=[[{${dieFormula}}k1 + @{strife_level}[${getTranslation("strife_level")}]]]}} {{harm=${harmType}}}`;
+      character[`strife_formula`] = formula;
+    });
   },{repeating: {characters: ["strife_formula", ...getStrifeDiceAttributes()]}});
 }
 
@@ -433,19 +433,23 @@ function handleIsland() {
     let charactersData = [];
     chatacters.forEach(character => {
       let newCharacter = {};
+      let harmType = [];
       for(let i=0; i<character.rolls.length; i++) {
         newCharacter[`strifedie_name_${i+1}`] = character.rolls[i].name;
         newCharacter[`strifedie_size_${i+1}`] = character.rolls[i].dice;
         if(character.rolls[i].harm && Array.isArray(character.rolls[i].harm)) {
           character.rolls[i].harm.forEach(type => {
-            type = type.toLowerCase();
-            if(kHarms.indexOf(type) > -1) {
-              newCharacter[`${type}_${i+1}`] = 1
+            lType = type.toLowerCase();
+            if(kHarms.indexOf(lType) > -1) {
+              newCharacter[`${lType}_${i+1}`] = 1
+              if(i == 0) harmType.push(type);
             }
           });
         }
       }
       if(character.notes) newCharacter["style_notes"] = character.notes;
+      const formula = `{{roll=[[{${character.rolls[0].dice}[${character.rolls[0].name}]}k1 + 5[${getTranslation("strife_level")}]]]}} {{harm=${harmType}}}`;
+      newCharacter.strife_formula = formula;
       charactersData.push(newCharacter);
     });
     fillRepeatingSectionFromData("characters", charactersData, setter);
