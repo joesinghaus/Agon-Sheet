@@ -439,7 +439,7 @@ function handleIsland() {
         newCharacter[`strifedie_size_${i+1}`] = character.rolls[i].dice;
         if(character.rolls[i].harm && Array.isArray(character.rolls[i].harm)) {
           character.rolls[i].harm.forEach(type => {
-            lType = type.toLowerCase();
+            const lType = type.toLowerCase();
             if(kHarms.indexOf(lType) > -1) {
               newCharacter[`${lType}_${i+1}`] = 1
               if(i == 0) harmType.push(type);
