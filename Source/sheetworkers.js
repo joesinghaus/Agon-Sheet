@@ -181,6 +181,14 @@ function registerButton(buttonName, callback, handlerName = "handler") {
   on(`clicked:${buttonName}`, throttledFunction);
 }
 
+function registerCompediumDrop(callback, handlerName = "handler") {
+  console.log(`Registering ${handlerName} for compedium drop.`);
+  on("sheet:compendium-drop", () => {
+    console.log(`Triggering ${handlerName} for compedium drop.`);
+    callback();
+  });
+}
+
 /* Constants */
 const kSheetVersion = "2";
 const kBrace = "&" + "#125" + ";";
@@ -454,7 +462,19 @@ function handleIsland() {
     });
     fillRepeatingSectionFromData("characters", charactersData, setter);
   });
-};
+}
+
+function handleCompediumDrop() {
+  getSetAttrs(["token_size", "token_src"], (attrs) => {
+    if(attrs.token_size) {
+      let tokenUpdate = {};
+      if(attrs.token_src) tokenUpdate.imgsrc = attrs['token_src'];
+      tokenUpdate.width = 70 * parseInt(attrs.token_size);
+      tokenUpdate.height = 70 * parseInt(attrs.token_size);
+      setDefaultToken(tokenUpdate);
+    }
+  });
+}
 
 registerSingle(
   kPathosGivesTwoDiceField,
@@ -486,6 +506,10 @@ register(
   "Handle generating strife roll query"
 );
 
+registerCompediumDrop(
+  handleCompediumDrop
+);
+  
 registerOpened(function () {
   getSetAttrs(["version"], function (attrs, setter) {
     if (!attrs["version"]) performFirstTimeSetup(attrs, setter);
@@ -519,14 +543,3 @@ registerButton("choose_island", () =>
     attrs["sheet_type"] = "island";
   })
 );
-on("sheet:compendium-drop", function() {
-  getSetAttrs(["token_size", "token_src"], (attrs) => {
-    if(attrs.token_size) {
-      let tokenUpdate = {};
-      if(attrs.token_src) tokenUpdate.imgsrc = attrs['token_src'];
-      tokenUpdate.width = 70 * parseInt(attrs.token_size);
-      tokenUpdate.height = 70 * parseInt(attrs.token_size);
-      setDefaultToken(tokenUpdate);
-    }
-  });
-});
