@@ -417,6 +417,26 @@ function calcStrifeRoll() {
   },{repeating: {characters: ["strife_formula", ...getStrifeDiceAttributes()]}});
 }
 
+function joinNameAndTags(characters) {
+  let joined = [];
+  characters.forEach(character => {
+    let joinedChar = {};
+    if(character.tags) {
+      joinedChar.rolls = JSON.parse(character.tags);
+      joinedChar.rolls.forEach(roll => {
+        if(roll.harm) roll.harm = Object.keys(roll.harm);
+      });
+    }
+    let firstTag = {};
+    firstTag.name = character.name;
+    firstTag.dice = character.dice;
+    if(character.harm) firstTag.harm = Object.keys(JSON.parse(character.harm));
+    joinedChar.rolls = [firstTag, ...joinedChar.rolls];
+    if(character.notes) joinedChar.notes = character.notes;
+    joined.push(joinedChar);
+  });
+  return joined;
+}
 function handleIsland() {
   console.log("Handling Island Drop.");
   getSetAttrs(["drop_name", "drop_data", "drop_content", "character_id", "token_src", "token_size", "sheet_type"], (attrs, setter) => {
@@ -428,18 +448,18 @@ function handleIsland() {
       pagedata = attrs.drop_data;
     }
     let category = pagedata["Category"];
-    let chatacters = [];
+    let characters = [];
     try {
-      chatacters = JSON.parse(pagedata["data-Characters"]);
+      characters = joinNameAndTags(JSON.parse(pagedata["data-characters"]));
     } catch(e) {
       console.log("Invalid data-Character page attribute");
-      chatacters = [];
+      characters = [];
     }
     attrs.sheet_type = "island";
     if(pagedata["Token"]) attrs.token_src = pagedata["Token"];
     if(pagedata["Token Size"]) attrs.token_size = pagedata["Token Size"];
     let charactersData = [];
-    chatacters.forEach(character => {
+    characters.forEach(character => {
       let newCharacter = {};
       let harmType = [];
       for(let i=0; i<character.rolls.length; i++) {
