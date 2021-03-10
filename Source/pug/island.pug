@@ -30,7 +30,7 @@ mixin strife(i)
         +checkbox(`${harm}_${i+1}`).squarebox
   +die-select(`strifedie_size_${i+1}`, ["d6", "d8", "d10", "d12", "2d6", "2d8", "2d10", "2d12"], "d8")
 
-fieldset.repeating_island
+fieldset.repeating_characters
   +hidden-input("strife_formula")(value="{{roll=[[{d8[Name] + d8[Epithet]}k1 + @{strife_level}[Strife Level]]]}} {{harm=}}")
   //+text-input("great_deeds_and_trophies_label")(value=locals.translation["great_deeds_and_trophies"]).title
   .roller
