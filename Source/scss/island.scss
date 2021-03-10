@@ -1,0 +1,142 @@
+.sheet-type-island {
+  margin-right: 25px;
+  .sheet-title {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-family: "Della Respira", serif;
+    padding-left: 2px;
+    margin-bottom: 5px;
+  }
+  .repcontainer .repitem {
+    border: none!important;
+    outline: none!important;
+    &:not(:first-child) {
+      margin-top: 40px;
+    }
+  }
+}
+.sheet-stats {
+  display: grid;
+  grid-template-columns: 1fr 0.5fr 0.5fr;
+  grid-gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+  .sheet-island-name input {
+    text-transform: uppercase;
+    font-size: 20px;
+    font-family: "Della Respira", serif;
+    padding-left: 4px;
+    font-weight: bold;
+  }
+  .sheet-divine-wrath {
+    .sheet-title {
+      @include title-text;
+      background: $lighter;
+      text-align: center;
+      padding: 2px 4px;
+    }
+    input[type="checkbox"] + span {
+      border-width: 16px 8px 0;
+    }
+    input[type="checkbox"]:not(:checked) + span {
+      border-top-color: #999;
+    }
+    .sheet-checks {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+      font-size: 10px;
+      font-weight: bold;
+      label {
+        display: block;
+        margin-right: 5px;
+      }
+    }
+  }
+  .sheet-strife-level {
+    .sheet-title {
+      @include title-text;
+      background: $lighter;
+      text-align: center;
+      padding: 2px 4px;
+    }
+    .sheet-checks {
+      display: grid;
+      font-size: 16px;
+      grid-template: auto / repeat(4, 1fr);
+      line-height: 1.4;
+      font-weight: bold;
+      label {
+        justify-content: center;
+      }
+      input:checked + span {
+        color: $darkred;
+      }
+    }
+  }
+}
+.sheet-roller {
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: 1fr 100px;
+  .sheet-harm {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 3px;
+  }
+  .sheet-harmbox {
+    display: flex;
+    align-items: center;
+    background: $lighter;
+    padding: 2px;
+    input[type="text"].sheet-title {
+      @include title-text;
+      width: 68px;
+      margin-right: auto;
+      padding-left: 2px;
+    }
+  }
+  button[type="roll"].sheet-strife-button {
+    @include title-text;
+    font-size: 16px;
+    line-height: 1.2;
+    white-space: normal;
+    margin: 0;
+    border: 2px solid;
+  }
+  .sheet-dice {
+    select {
+      width: 100%;
+      border: $bordercolor;
+    }
+    input[type="text"] {
+      @include title-text;
+      padding-left: 4px;
+      background: $lighter;
+    }
+    .sheet-enabled {
+      display: flex;
+      align-items: center;
+    }
+    .sheet-strifedie {
+      display: grid;
+      grid-template-columns: 15px 1fr 350px 50px;
+      grid-gap: 5px;
+      &:not(:first-of-type) {
+        margin-top: 10px;
+      }
+      &:not(.sheet-default) {
+        display: none;
+      }
+    }
+    .sheet-strife-dice .sheet-strifedie-name[value]:not([value=""]) + .sheet-strifedie, 
+    .sheet-strife-dice .sheet-strifedie-name[value]:not([value=""]) + .sheet-strifedie + .sheet-strifedie-name + .sheet-strifedie {
+      display: grid;
+      opacity: 1;
+    }
+  }
+}
+.sheet-cnotes {
+  margin-top: 10px;
+}

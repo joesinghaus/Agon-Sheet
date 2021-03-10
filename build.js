@@ -43,9 +43,10 @@ const options = {
   pretty: printPretty,
   translation: JSON.parse(fs.readFileSync("translation.json", "utf8")),
   workers: fs.readFileSync("Source/sheetworkers.js", "utf8").trim(),
+  source: "//# sourceURL=agon.js"
 };
 try {
-  options.workers = `(function () {\n${printPretty ? options.workers : babel.render(options.workers).body}}\n)();`;
+  options.workers = `(function () {\n${printPretty ? options.workers : babel.render(options.workers).body}}\n)();\n${options.source}`;
 } catch (err) {
   console.log(
     "jstransformer or jstransformer-babel did not execute successfully. Proceeding without minifying sheet workers. Error message was:"

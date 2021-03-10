@@ -181,6 +181,14 @@ function registerButton(buttonName, callback, handlerName = "handler") {
   on(`clicked:${buttonName}`, throttledFunction);
 }
 
+function registerCompediumDrop(callback, handlerName = "handler") {
+  console.log(`Registering ${handlerName} for compedium drop.`);
+  on("sheet:compendium-drop", () => {
+    console.log(`Triggering ${handlerName} for compedium drop.`);
+    callback();
+  });
+}
+
 /* Constants */
 const kSheetVersion = "2";
 const kBrace = "&" + "#125" + ";";
@@ -189,6 +197,9 @@ const kExtraEpithetField = "boons_4_check_1";
 const kPathosGivesTwoDiceField = "boons_6_check_1";
 const kSpendDivineFavorBoon = "boons_7_check_1";
 const kHarms = ["epic", "mythic", "perilous", "sacred"];
+const kSrifeDiceLength = 12;
+const kRepeatingCharacters = "repeating_characters";
+const kDropCategory = "drop_category";
 const kDomains = [
   "arts_oration",
   "blood_valor",
@@ -365,33 +376,127 @@ function setupDivineFavorQuery(attrs) {
   }
 }
 
-function calcStrifeRoll(attrs) {
-  const harmType = kHarms
-    .filter((harm) => attrs[harm] == "1")
-    .map((x) => `@{${x}_label}`)
-    .join(", ");
-  const dieSources = attrs.repeating.strifedie.map((row) => [
-    row.strifedie_name,
-    row.strifedie_size,
-  ]);
-  if (attrs["divine_wrath"] !== "0") {
-    dieSources.push(["@{divine_wrath_label}", "@{divine_wrath}"]);
+function getStrifeDiceAttributes(pre = "") {
+  let attributes = [];
+  for(let i=1; i<= kSrifeDiceLength; i++) {
+    attributes.push(`${pre}strifedie_enabled_${i}`);
+    attributes.push(`${pre}strifedie_name_${i}`);
+    attributes.push(`${pre}strifedie_size_${i}`);
+    kHarms.forEach(harm => {
+      attributes.push(`${pre}${harm}_${i}`);
+    });
   }
-  const dieFormula = dieSources
-    .map(([name, die]) => `${die}[${name}]`)
-    .join(" + ");
-  attrs[
-    "strife_formula"
-  ] = `{{roll=[[{${dieFormula}}k1 + @{strife_level}[${getTranslation(
-    "strife_level"
-  )}]]]}} {{harm=${harmType}}}`;
+  return attributes;
+}
+function handleStrifeRoll() {
+  calcStrifeRoll();
+}
+function calcStrifeRoll() {
+  getSetAttrs(["divine_wrath"], (attrs) => {
+    attrs.repeating.characters.forEach(character => {
+      const dieSources = [];
+      const harms = [];
+      for(let i=1; i<= kSrifeDiceLength; i++) {
+        if(character[`strifedie_enabled_${i}`] && character[`strifedie_enabled_${i}`] == 1 && character[`strifedie_name_${i}`]) {
+          kHarms.forEach(harm => {
+            if(character[`${harm}_${i}`] && character[`${harm}_${i}`] == 1) {
+              harms.push(harm);
+            }
+          });
+          dieSources.push([character[`strifedie_name_${i}`], character[`strifedie_size_${i}`]]);
+        }
+      }
+      if (attrs["divine_wrath"] !== "0") dieSources.push(["@{divine_wrath_label}", "@{divine_wrath}"]);
+      const dieFormula = dieSources
+        .map(([name, die]) => `${die}[${name}]`)
+        .join(" + ");
+      const harmType = Array.from(new Set(harms)).sort();
+      const formula = `{{roll=[[{${dieFormula}}k1 + @{strife_level}[${getTranslation("strife_level")}]]]}} {{harm=${harmType}}}`;
+      character[`strife_formula`] = formula;
+    });
+  },{repeating: {characters: ["strife_formula", ...getStrifeDiceAttributes()]}});
 }
 
-function handleStrifeRoll() {
-  getSetAttrs([...kHarms, "divine_wrath"], calcStrifeRoll, {
-    repeating: {
-      strifedie: ["strifedie_name", "strifedie_size"],
-    },
+function safeGuardDiceSize(roll) {
+  return roll.toLowerCase().replace(/\b[^2]?d/g, 'd');
+}
+function joinNameAndTags(characters) {
+  let joined = [];
+  characters.forEach(character => {
+    let joinedChar = {};
+    if(character.tags) {
+      joinedChar.rolls = JSON.parse(character.tags);
+      joinedChar.rolls.forEach(roll => {
+        if(roll.dice) roll.dice = safeGuardDiceSize(roll.dice);
+        if(roll.harm) roll.harm = Object.keys(roll.harm);
+      });
+    }
+    let firstTag = {};
+    firstTag.name = character.name;
+    firstTag.dice = safeGuardDiceSize(character.dice);
+    if(character.harm) firstTag.harm = Object.keys(JSON.parse(character.harm));
+    joinedChar.rolls = [firstTag, ...joinedChar.rolls];
+    if(character.notes) joinedChar.notes = character.notes;
+    joined.push(joinedChar);
+  });
+  return joined;
+}
+function handleIsland() {
+  console.log("Handling Island Drop.");
+  getSetAttrs(["drop_name", "drop_data", "drop_content", "character_id", "token_src", "token_size", "sheet_type"], (attrs, setter) => {
+    let pagedata = {};
+    try {
+      pagedata = JSON.parse(attrs.drop_data);
+    } catch(e) {
+      console.log("Invalid drop-Data attribute");
+      pagedata = attrs.drop_data;
+    }
+    let category = pagedata["Category"];
+    let characters = [];
+    try {
+      characters = joinNameAndTags(JSON.parse(pagedata["data-characters"]));
+    } catch(e) {
+      console.log("Invalid data-Character page attribute");
+      characters = [];
+    }
+    attrs.sheet_type = "island";
+    if(pagedata["Token"]) attrs.token_src = pagedata["Token"];
+    if(pagedata["Token Size"]) attrs.token_size = pagedata["Token Size"];
+    let charactersData = [];
+    characters.forEach(character => {
+      let newCharacter = {};
+      let harmType = [];
+      for(let i=0; i<character.rolls.length; i++) {
+        newCharacter[`strifedie_name_${i+1}`] = character.rolls[i].name;
+        newCharacter[`strifedie_size_${i+1}`] = character.rolls[i].dice;
+        if(character.rolls[i].harm && Array.isArray(character.rolls[i].harm)) {
+          character.rolls[i].harm.forEach(type => {
+            const lType = type.toLowerCase();
+            if(kHarms.indexOf(lType) > -1) {
+              newCharacter[`${lType}_${i+1}`] = 1
+              if(i == 0) harmType.push(type);
+            }
+          });
+        }
+      }
+      if(character.notes) newCharacter["style_notes"] = character.notes;
+      const formula = `{{roll=[[{${character.rolls[0].dice}[${character.rolls[0].name}]}k1 + 5[${getTranslation("strife_level")}]]]}} {{harm=${harmType}}}`;
+      newCharacter.strife_formula = formula;
+      charactersData.push(newCharacter);
+    });
+    fillRepeatingSectionFromData("characters", charactersData, setter);
+  });
+}
+
+function handleCompediumDrop() {
+  getSetAttrs(["token_size", "token_src"], (attrs) => {
+    if(attrs.token_size) {
+      let tokenUpdate = {};
+      if(attrs.token_src) tokenUpdate.imgsrc = attrs['token_src'];
+      tokenUpdate.width = 70 * parseInt(attrs.token_size);
+      tokenUpdate.height = 70 * parseInt(attrs.token_size);
+      setDefaultToken(tokenUpdate);
+    }
   });
 }
 
@@ -414,12 +519,21 @@ registerSingle(
 );
 
 register(
-  [...kHarms, "divine_wrath", "repeating_strifedie"],
+  [kRepeatingCharacters],
   handleStrifeRoll,
-  "Handle strife player roll"
+  "Handle generating strife roll query"
 );
-on("remove:repeating_strifedie", handleStrifeRoll);
 
+register(
+  [kDropCategory],
+  handleIsland,
+  "Handle generating strife roll query"
+);
+
+registerCompediumDrop(
+  handleCompediumDrop
+);
+  
 registerOpened(function () {
   getSetAttrs(["version"], function (attrs, setter) {
     if (!attrs["version"]) performFirstTimeSetup(attrs, setter);
@@ -446,5 +560,10 @@ registerButton("choose_character", () =>
 registerButton("choose_strife", () =>
   getSetAttrs([], (attrs) => {
     attrs["sheet_type"] = "strife";
+  })
+);
+registerButton("choose_island", () =>
+  getSetAttrs([], (attrs) => {
+    attrs["sheet_type"] = "island";
   })
 );

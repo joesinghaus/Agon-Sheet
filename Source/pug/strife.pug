@@ -17,37 +17,38 @@
             if i < 3
               .floatingbar
 
-.roller
-  .harm
-    each harm in ["epic", "mythic", "perilous", "sacred"]
-      .harmbox
-        +text-input(`${harm}_label`)(value=locals.translation[harm]).title
-        +checkbox(harm).squarebox
-  .divine-wrath
-    +text-input("divine_wrath_label")(value=locals.translation["divine_wrath"]).title
-    .checks
-      each die in ["d8", "d10", "d12"]
-        label
-          +checkbox("divine_wrath")(value=die).trianglebox
-          span=die
-  .strife-level
-    +text-input("plus_strife_level_label")(value=locals.translation["plus_strife_level"]).title
-    .checks
-      each level in ["0", "4", "5", "6"]
-        label
-          input(name="attr_strife_level", type="radio", value=level, checked=(level=="5"))
-          span=`+${level}`
-  button(
-    class="strife-button"
-    name="roll_strife",
-    type="roll",
-    data-i18n="roll_strife"
-    value="&{template:agon-strife} @{strife_formula} {{type=@{domain_query}}}"
-  )
-  .dice
-    fieldset.repeating_strifedie
-      +text-input("strifedie_name")(data-i18n-placeholder="die_placeholder")
-      +die-select("strifedie_size", ["d6", "d8", "d10", "d12"], "d8")
+//
+  .roller
+    .harm
+      each harm in ["epic", "mythic", "perilous", "sacred"]
+        .harmbox
+          +text-input(`${harm}_label`)(value=locals.translation[harm]).title
+          +checkbox(harm).squarebox
+    .divine-wrath
+      +text-input("divine_wrath_label")(value=locals.translation["divine_wrath"]).title
+      .checks
+        each die in ["d8", "d10", "d12"]
+          label
+            +checkbox("divine_wrath")(value=die).trianglebox
+            span=die
+    .strife-level
+      +text-input("plus_strife_level_label")(value=locals.translation["plus_strife_level"]).title
+      .checks
+        each level in ["0", "4", "5", "6"]
+          label
+            input(name="attr_strife_level", type="radio", value=level, checked=(level=="5"))
+            span=`+${level}`
+    button(
+      class="strife-button"
+      name="roll_strife",
+      type="roll",
+      data-i18n="roll_strife"
+      value="&{template:agon-strife} @{strife_formula} {{type=@{domain_query}}}"
+    )
+    .dice
+      fieldset.repeating_strifedie
+        +text-input("strifedie_name")(data-i18n-placeholder="die_placeholder")
+        +die-select("strifedie_size", ["d6", "d8", "d10", "d12"], "d8")
 
 .destinies
   +text-input("island_destinies_label")(value=locals.translation["island_destinies"]).title
